@@ -5,6 +5,7 @@
 #include "player.h"
 #include "tinyxml2.h"
 #include "Cenario.h"
+#include <algorithm>
 #define INC_KEY 1
 #define INC_KEYIDLE 0.01
 
@@ -14,6 +15,7 @@ int keyStatus[256];
 Player Player;
 Cenario Cenario;
 float camMove = 0;
+int curY = 0;
 
 // Window dimensions
 const GLint Width = 500;
@@ -134,9 +136,7 @@ void init(int w, int h)
     glClearColor(R,G,B, 1);
     glMatrixMode(GL_PROJECTION); // Select the projection matrix
 
-    //glTranslatef(4,3.68,0);
-    //gluOrtho2D(-40,40,40,-40);
-    gluOrtho2D(-250,250,-250,250);
+    gluOrtho2D(-45.9,45.9,-45.9,45.9);
     glMatrixMode(GL_MODELVIEW); // Select the projection matrix
     glLoadIdentity();
 }
@@ -166,7 +166,6 @@ void idle(void)
         Player.MoveEmX(inc);
         //mover personagem e camera
     }
-
     glMatrixMode(GL_PROJECTION); // Select the projection matrix
     glLoadIdentity();
 
@@ -177,6 +176,20 @@ void idle(void)
     glLoadIdentity();
 
     glutPostRedisplay();
+}
+void passive(int x1,int y1) {
+
+    int centerY = 250;
+    int deltaY = y1 - centerY;
+    deltaY = deltaY / 3 /* sense inversa*/;
+    if(deltaY < -45){
+        deltaY = -45;
+    }
+    if(deltaY > 45){
+        deltaY = 45;
+    }
+    Player.RodaBraco(-deltaY);
+
 }
 
 int main(int argc, char *argv[])
@@ -194,6 +207,7 @@ int main(int argc, char *argv[])
     // Define callbacks.
     glutDisplayFunc(renderScene);
     glutKeyboardFunc(keyPress);
+    glutPassiveMotionFunc(passive);
     glutIdleFunc(idle);
     glutKeyboardUpFunc(keyup);
 

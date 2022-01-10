@@ -4,11 +4,12 @@
 float cabecaRadius = 1.5;
 float troncoHeight  = 3.9;
 float troncoWidth  = 2;
-float bracoHeight  = 0.5;
-float bracoWidth  = 3;
+float bracoHeight  = 3;
+float bracoWidth  = 0.5;
 float pernaHeight  = 1.9;
 float pernaWidth  = 0.5;
 bool movingRight = true;
+
 
 void Player::DesenhaRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B)
 {
@@ -46,11 +47,12 @@ void Player::DesenhaBraco(GLfloat x, GLfloat y, GLfloat theta1)
 {
     glPushMatrix();
     glTranslatef(x,y,0);
+    glRotatef(theta1,0,0,1);
     if(movingRight)
         glScalef(1,1,1);
     else
         glScalef(-1,1,1);
-    glRotatef(theta1,0,0,1);
+
     DesenhaRect(bracoHeight,bracoWidth,1,1,0);
     glPopMatrix();
 }
@@ -111,15 +113,14 @@ void Player::DesenhaPlayer(GLfloat x, GLfloat y, GLfloat bTheta, GLfloat pETheta
         glScalef(-1,1,1);
     DesenhaRect(troncoHeight,troncoWidth,0,1,0.3); //desenhando base
     DesenhaCabeca(0, troncoHeight + 1 /*offset*/, cabecaRadius,0,1,0.3);
-    DesenhaBraco(troncoWidth,troncoHeight/2,bTheta);
+    DesenhaBraco(0,troncoHeight/2,bTheta);
     DesenhaPerna(0,-pernaHeight,pETheta1,pETheta2, pDTheta1, pDTheta2);
     glPopMatrix();
 }
 
 void Player::RodaBraco(GLfloat inc)
 {
-    float speed = 1.5;
-    bTheta += inc * speed;
+    bTheta =  inc - Player::initialBTheta;
 }
 
 void Player::RodaPernaE1(GLfloat inc)

@@ -7,6 +7,7 @@
 class Player {
     GLfloat gX;
     GLfloat gY;
+    GLfloat initialBTheta = 0;
     GLfloat bTheta = 0;
     GLfloat pETheta1 = 0;
     GLfloat pETheta2 = 0;
@@ -24,7 +25,8 @@ public:
     Player(){
         gX = -157;
         gY = -183.2;
-        bTheta = 0;
+        initialBTheta = 90;
+        bTheta = -90;
         pETheta1 = 0;
         pETheta2 = 0;
         pDTheta1 = 0;
