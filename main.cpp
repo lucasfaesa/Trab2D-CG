@@ -5,6 +5,7 @@
 #include "player.h"
 #include "tinyxml2.h"
 #include "Cenario.h"
+#include "tiro.h"
 #include <algorithm>
 #define INC_KEY 1
 #define INC_KEYIDLE 0.01
@@ -16,7 +17,7 @@ Player Player;
 Cenario Cenario;
 float camMove = 0;
 int curY = 0;
-
+Tiro * tiro = NULL; //Um tiro por vez
 // Window dimensions
 const GLint Width = 500;
 const GLint Height = 500;
@@ -29,66 +30,7 @@ void renderScene(void)
     Cenario.Desenha();
     Player.Desenha();
 
-
-   /* glPushMatrix();
-    glLoadIdentity();
-    glTranslatef(364.13/2,-91.65/2,0);
-    glBegin(GL_QUADS);
-
-    glColor3f(0,0,0);// Face posterior
-    //glNormal3f(0.0, 0.0, 1.0);	// Normal da face
-    glVertex2f(364.13/2, 91.65/2);
-    glVertex2f(-364.13/2,  91.65/2);
-    glVertex2f(-364.13/2, -91.65/2);
-    glVertex2f(364.13/2, -91.65/2);
-    glEnd();*/
-/*
-    //###############
-    glPushMatrix();
-    glLoadIdentity();
-    glTranslatef(0,0,0);
-    glBegin(GL_QUADS);
-
-    glColor3f(0,0,0);// Face posterior
-    //glNormal3f(0.0, 0.0, 1.0);	// Normal da face
-    glVertex2f(364.13/2, 91.65);
-    glVertex2f(-364.13/2,  91.65);
-    glVertex2f(-364.13/2, 0);
-    glVertex2f(364.13/2, 0);
-    glEnd();
-
-    glPopMatrix();
-
-    glPushMatrix();
-    glLoadIdentity();
-    glTranslatef(20.16,-180.7007,0);
-    glBegin(GL_QUADS);
-
-    glColor3f(0,0,1);// Face posterior
-
-    glVertex2f(5.85/2, 6.61);
-    glVertex2f(-5.85/2,  6.61);
-    glVertex2f(-5.85/2, 0);
-    glVertex2f(5.85/2, 0);
-    glEnd();
-
-    glPushMatrix();
-    glLoadIdentity();
-    glTranslatef(195.45644,-95.349701,0);
-    glBegin(GL_QUADS);
-
-    glColor3f(0,0,1);// Face posterior
-
-    glVertex2f(6.0476213/2, 61.799107);
-    glVertex2f(-6.0476213/2,  61.799107);
-    glVertex2f(-6.0476213/2, 0);
-    glVertex2f(6.0476213/2, 0);
-    glEnd();
-
-    glPopMatrix();
-
-    //########################
-*/
+    if (tiro) tiro->Desenha();
 
     glutSwapBuffers(); // Desenha the new frame of the game.
 }
@@ -166,6 +108,25 @@ void idle(void)
         Player.MoveEmX(inc);
         //mover personagem e camera
     }
+
+    //Trata o tiro (soh permite um tiro por vez)
+    //Poderia usar uma lista para tratar varios tiros
+    if(tiro){
+        tiro->Move(timeDiference);
+
+        //Trata colisao
+        /*if (alvo.Atingido(tiro)){
+            atingido++;
+            alvo.Recria(rand()%500 - 250, 200);
+        }*/
+
+        if (!tiro->Valido()){
+            delete tiro;
+            tiro = NULL;
+        }
+    }
+    //std::cout << Player.ObtemDirection();
+
     glMatrixMode(GL_PROJECTION); // Select the projection matrix
     glLoadIdentity();
 
@@ -192,6 +153,21 @@ void passive(int x1,int y1) {
 
 }
 
+void MyMouse(int button, int state, int x, int y)
+{
+    switch (button)
+    {
+        case GLUT_LEFT_BUTTON:
+
+            if(state == GLUT_UP)
+            {
+                if (!tiro)
+                    tiro = Player.Atira();
+            }
+            break;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     // Initialize openGL with Double buffer and RGB color without transparency.
@@ -209,6 +185,7 @@ int main(int argc, char *argv[])
     glutKeyboardFunc(keyPress);
     glutPassiveMotionFunc(passive);
     glutIdleFunc(idle);
+    glutMouseFunc(MyMouse);
     glutKeyboardUpFunc(keyup);
 
     glutReshapeFunc(init);

@@ -1,5 +1,7 @@
 #include "player.h"
+#include "tiro.h"
 #include <cmath>
+#include <iostream>
 
 float cabecaRadius = 1.5;
 float troncoHeight  = 3.9;
@@ -8,8 +10,6 @@ float bracoHeight  = 3;
 float bracoWidth  = 0.5;
 float pernaHeight  = 1.9;
 float pernaWidth  = 0.5;
-bool movingRight = true;
-
 
 void Player::DesenhaRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B)
 {
@@ -27,7 +27,7 @@ void Player::DesenhaCabeca(GLfloat x, GLfloat y, GLint radius, GLfloat R, GLfloa
 {
     glPushMatrix();
     glTranslatef(x,y,0);
-    if(movingRight)
+    if(facingRight)
         glScalef(1,1,1);
     else
         glScalef(-1,1,1);
@@ -48,7 +48,7 @@ void Player::DesenhaBraco(GLfloat x, GLfloat y, GLfloat theta1)
     glPushMatrix();
     glTranslatef(x,y,0);
     glRotatef(theta1,0,0,1);
-    if(movingRight)
+    if(facingRight)
         glScalef(1,1,1);
     else
         glScalef(-1,1,1);
@@ -61,7 +61,7 @@ void Player::DesenhaPerna(GLfloat x, GLfloat y, GLfloat pEtheta1, GLfloat pEthet
 {
     glPushMatrix();
     glTranslatef(x,y,0);
-    if(movingRight)
+    if(facingRight)
         glScalef(1,1,1);
     else
         glScalef(-1,1,1);
@@ -74,7 +74,7 @@ void Player::DesenhaPerna(GLfloat x, GLfloat y, GLfloat pEtheta1, GLfloat pEthet
 
     glPushMatrix();
     glTranslatef(x,y,0);
-    if(movingRight)
+    if(facingRight)
         glScalef(1,1,1);
     else
         glScalef(-1,1,1);
@@ -107,7 +107,7 @@ void Player::DesenhaPlayer(GLfloat x, GLfloat y, GLfloat bTheta, GLfloat pETheta
 
     glPushMatrix();
     glTranslatef(x,y,0);
-    if(movingRight)
+    if(facingRight)
         glScalef(1,1,1);
     else
         glScalef(-1,1,1);
@@ -116,6 +116,23 @@ void Player::DesenhaPlayer(GLfloat x, GLfloat y, GLfloat bTheta, GLfloat pETheta
     DesenhaBraco(0,troncoHeight/2,bTheta);
     DesenhaPerna(0,-pernaHeight,pETheta1,pETheta2, pDTheta1, pDTheta2);
     glPopMatrix();
+}
+
+Tiro* Player::Atira() {
+
+    float angleSumTheta1 = (bTheta) * M_PI / 180;
+
+    if(facingRight) {
+        float bulletX = gX - bracoHeight * sin(angleSumTheta1);
+        float bulletY = gY + troncoHeight / 2 + bracoHeight * cos(angleSumTheta1);
+        return new Tiro(bulletX, bulletY, 90 + bTheta, facingRight);
+    }
+    else{
+        float bulletX = gX + bracoHeight * sin(angleSumTheta1) ;
+        float bulletY = gY + troncoHeight/2 + bracoHeight * cos(angleSumTheta1);
+        return new Tiro(bulletX, bulletY, -90 + bTheta, facingRight);
+    }
+
 }
 
 void Player::RodaBraco(GLfloat inc)
@@ -149,10 +166,14 @@ void Player::RodaPernaD2(GLfloat inc)
 
 void Player::MoveEmX(GLfloat dx)
 {
-    if(dx > 0)
-        movingRight = true;
-    if(dx < 0)
-        movingRight = false;
+    if(dx > 0){
+        facingRight = true;
+    }
+    if(dx < 0){
+        facingRight = false;
+    }
+    std::cout << facingRight;
     float speed = dx * 100;
     gX += speed;
+    //std::cout << facingRight << std::endl;
 }

@@ -2,7 +2,9 @@
 #define MAIN_CPP_PLAYER_H
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include "tiro.h"
 
+static bool facingRight = true;
 
 class Player {
     GLfloat gX;
@@ -14,6 +16,7 @@ class Player {
     GLfloat pDTheta1 = 0;
     GLfloat pDTheta2 = 0;
 
+
 private:
 void DesenhaRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B);
 void DesenhaCabeca(GLfloat x, GLfloat y, GLint radius, GLfloat R,GLfloat G, GLfloat B);
@@ -22,6 +25,7 @@ void DesenhaBraco(GLfloat x, GLfloat y, GLfloat theta1);
 void DesenhaPlayer(GLfloat x, GLfloat y, GLfloat bTheta, GLfloat pETheta1, GLfloat pETheta2, GLfloat pDTheta1, GLfloat pDTheta2);
 
 public:
+
     Player(){
         gX = -157;
         gY = -183.2;
@@ -41,8 +45,8 @@ public:
     void RodaPernaE2(GLfloat inc);
     void RodaPernaD1(GLfloat inc);
     void RodaPernaD2(GLfloat inc);
+    Tiro* Atira();
     void MoveEmX(GLfloat dx);
     void MoveEmY(GLfloat dy);
-
 };
 #endif //MAIN_CPP_PLAYER_H
