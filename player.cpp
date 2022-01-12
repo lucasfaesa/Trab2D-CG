@@ -11,6 +11,11 @@ float bracoWidth  = 0.5;
 float pernaHeight  = 1.9;
 float pernaWidth  = 0.5;
 
+float jumpUpDistanceTraveled = 0;
+float maxJumpHeight = 32.1 ; //TODO tamanho do corpo do boneco
+
+bool falling;
+
 void Player::DesenhaRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B)
 {
     glBegin(GL_QUADS);
@@ -172,8 +177,20 @@ void Player::MoveEmX(GLfloat dx)
     if(dx < 0){
         facingRight = false;
     }
-    std::cout << facingRight;
     float speed = dx * 100;
     gX += speed;
-    //std::cout << facingRight << std::endl;
+
+}
+
+void Player::MoveEmY(GLfloat dy, bool jumping)
+{
+    if(!jumping) return;
+
+    float speed = dy * 75;
+    jumpUpDistanceTraveled += speed;
+
+    if(jumpUpDistanceTraveled <= maxJumpHeight && !falling){
+        gY += speed;
+    }
+
 }

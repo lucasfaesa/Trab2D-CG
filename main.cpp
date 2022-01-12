@@ -13,6 +13,10 @@
 //Key status
 int keyStatus[256];
 
+bool jumping = false;
+bool inAir = false;
+
+float yVel = 0.01;
 Player Player;
 Cenario Cenario;
 float camMove = 0;
@@ -125,6 +129,8 @@ void idle(void)
             tiro = NULL;
         }
     }
+
+    Player.MoveEmY(yVel, jumping);
     //std::cout << Player.ObtemDirection();
 
     glMatrixMode(GL_PROJECTION); // Select the projection matrix
@@ -165,6 +171,16 @@ void MyMouse(int button, int state, int x, int y)
                     tiro = Player.Atira();
             }
             break;
+
+        case GLUT_RIGHT_BUTTON:
+            if(state == GLUT_DOWN){
+                if(!inAir)
+                    jumping = true;
+            }
+
+            if(state == GLUT_UP){
+                jumping = false;
+            }
     }
 }
 

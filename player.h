@@ -47,6 +47,6 @@ public:
     void RodaPernaD2(GLfloat inc);
     Tiro* Atira();
     void MoveEmX(GLfloat dx);
-    void MoveEmY(GLfloat dy);
+    void MoveEmY(GLfloat dy, bool jumping);
 };
 #endif //MAIN_CPP_PLAYER_H
