@@ -3,12 +3,12 @@
 #include <cmath>
 #include <iostream>
 
-float cabecaRadius = 1.5;
-float troncoHeight  = 3.9;
+float cabecaRadius = 1;
+float troncoHeight  = 3.8;
 float troncoWidth  = 2;
 float bracoHeight  = 3;
 float bracoWidth  = 0.5;
-float pernaHeight  = 1.9;
+float pernaHeight  = 1.8;
 float pernaWidth  = 0.5;
 
 float jumpUpDistanceTraveled = 0;
@@ -16,11 +16,10 @@ float maxJumpHeight = 32.1 ; //TODO tamanho do corpo do boneco
 
 bool falling;
 
-void Player::DesenhaRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B)
+void Player::DesenhaRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B,GLfloat A)
 {
     glBegin(GL_QUADS);
-    glColor3f(R,G,B);// Face posterior
-    glNormal3f(0.0, 0.0, 1.0);	// Normal da face
+    glColor4f(R,G,B,A);// Face posterior
     glVertex3f(width/2, height, 1.0);
     glVertex3f(-width/2, height, 1.0);
     glVertex3f(-width/2, 0.0, 1.0);
@@ -28,7 +27,7 @@ void Player::DesenhaRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GL
     glEnd();
 
 }
-void Player::DesenhaCabeca(GLfloat x, GLfloat y, GLint radius, GLfloat R, GLfloat G, GLfloat B)
+void Player::DesenhaCabeca(GLfloat x, GLfloat y, GLfloat radius, GLfloat R, GLfloat G, GLfloat B)
 {
     glPushMatrix();
     glTranslatef(x,y,0);
@@ -58,7 +57,7 @@ void Player::DesenhaBraco(GLfloat x, GLfloat y, GLfloat theta1)
     else
         glScalef(-1,1,1);
 
-    DesenhaRect(bracoHeight,bracoWidth,1,1,0);
+    DesenhaRect(bracoHeight,bracoWidth,1,1,0,1);
     glPopMatrix();
 }
 
@@ -71,10 +70,10 @@ void Player::DesenhaPerna(GLfloat x, GLfloat y, GLfloat pEtheta1, GLfloat pEthet
     else
         glScalef(-1,1,1);
     glRotatef(pEtheta1,0,0,1);
-    DesenhaRect(pernaHeight,pernaWidth,0,1,0); //desenhando primeira perna esquerda
+    DesenhaRect(pernaHeight,pernaWidth,0,1,0,1); //desenhando primeira perna esquerda
     glTranslatef(0,-pernaHeight,0);
     glRotatef(pEtheta2,0,0,1);
-    DesenhaRect(pernaHeight,pernaWidth,0,1,0); //desenhando segunda perna esquerda
+    DesenhaRect(pernaHeight,pernaWidth,1,1,0,1); //desenhando segunda perna esquerda
     glPopMatrix();
 
     glPushMatrix();
@@ -84,13 +83,20 @@ void Player::DesenhaPerna(GLfloat x, GLfloat y, GLfloat pEtheta1, GLfloat pEthet
     else
         glScalef(-1,1,1);
     glRotatef(pDtheta1,0,0,1);
-    DesenhaRect(pernaHeight,pernaWidth,1,0,0); //desenhando primeira perna direita
+    DesenhaRect(-pernaHeight,pernaWidth,1,0,0,1); //desenhando primeira perna direita
     glTranslatef(0,-pernaHeight,0);
     glRotatef(pDtheta2,0,0,1);
-    DesenhaRect(pernaHeight,pernaWidth,1,0,0); //desenhando segunda perna direita
+    DesenhaRect(-pernaHeight,pernaWidth,0,0,0,1); //desenhando segunda perna direita*/
     glPopMatrix();
 }
 
+void Player::DesenhaCollider() {
+    glPushMatrix();
+    glTranslatef(0,-troncoHeight,0);
+    DesenhaRect(cabecaRadius*2+troncoHeight+pernaHeight*2, troncoWidth, 1,1,1,0);
+    glPopMatrix();
+
+}
 
 void Player::DesenhaPlayer(GLfloat x, GLfloat y, GLfloat bTheta, GLfloat pETheta1, GLfloat pETheta2, GLfloat pDTheta1, GLfloat pDTheta2)
 {
@@ -116,10 +122,12 @@ void Player::DesenhaPlayer(GLfloat x, GLfloat y, GLfloat bTheta, GLfloat pETheta
         glScalef(1,1,1);
     else
         glScalef(-1,1,1);
-    DesenhaRect(troncoHeight,troncoWidth,0,1,0.3); //desenhando base
-    DesenhaCabeca(0, troncoHeight + 1 /*offset*/, cabecaRadius,0,1,0.3);
+    DesenhaCollider();
+    DesenhaRect(troncoHeight,troncoWidth,0,1,0.3,1); //desenhando base
+    DesenhaCabeca(0, troncoHeight + cabecaRadius /*offset*/, cabecaRadius,0,1,0.3);
     DesenhaBraco(0,troncoHeight/2,bTheta);
-    DesenhaPerna(0,-pernaHeight,pETheta1,pETheta2, pDTheta1, pDTheta2);
+    DesenhaPerna(0, 0,pETheta1,pETheta2, pDTheta1, pDTheta2);
+
     glPopMatrix();
 }
 

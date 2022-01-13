@@ -82,6 +82,9 @@ void init(int w, int h)
     glClearColor(R,G,B, 1);
     glMatrixMode(GL_PROJECTION); // Select the projection matrix
 
+    glEnable(GL_BLEND); //Enable blending.
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
+
     gluOrtho2D(-45.9,45.9,-45.9,45.9);
     glMatrixMode(GL_MODELVIEW); // Select the projection matrix
     glLoadIdentity();
@@ -139,6 +142,7 @@ void idle(void)
     glTranslatef(camMove/45.9 +3.427/*offset*/,3.08/*offset*/,0);
 
     gluOrtho2D(-45.9,45.9,-45.9,45.9);
+
     glMatrixMode(GL_MODELVIEW); // Select the projection matrix
     glLoadIdentity();
 

@@ -96,6 +96,9 @@ void Cenario::DesenhaCenario() {
         DesenhaCirc(iX,iY,iR,pAttrFill);
     }
 
+
+    //Desenhar chão
+    DesenhaRect(-163.5, 187.2, 10,364.1373,"black");
 }
 
 
