@@ -33,6 +33,35 @@ void Cenario::DesenhaRect(GLfloat x, GLfloat y, GLfloat height, GLfloat width, s
 
 }
 
+void DesenhaRect2(GLfloat x, GLfloat y, GLfloat height, GLfloat width, string color)
+{
+    float R = 0;
+    float G = 0;
+    float B = 0;
+    if(color == "blue"){
+        R = 0;
+        G = 0;
+        B = 1;
+    }
+
+
+    glPushMatrix();
+    //glScalef(1,-1,1); //invertendo
+    glTranslatef(x+width/2,y,0);
+    glBegin(GL_QUADS);
+
+    glColor3f(R,G,B);// Face posterior
+    //glNormal3f(0.0, 0.0, 1.0);	// Normal da face
+    glVertex2f(width/2, height);
+    glVertex2f(-width/2,height);
+    glVertex2f(-width/2, 0);
+    glVertex2f(width/2, 0);
+    glEnd();
+
+    glPopMatrix();
+
+}
+
 void Cenario::DesenhaCirc(GLfloat x, GLfloat y, GLfloat radius, string color)
 {
     float R,G,B;
@@ -98,7 +127,7 @@ void Cenario::DesenhaCenario() {
 
 
     //Desenhar chão
-    DesenhaRect(-163.5, 187.2, 10,364.1373,"black");
+    DesenhaRect2(-163.5, -187.2, -10,364.1373,"black");
 }
 
 

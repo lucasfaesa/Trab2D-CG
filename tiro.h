@@ -23,7 +23,7 @@ public:
         gX = x; 
         gY = y; 
         gDirectionAng = directionAng; 
-        gVel = 0.1;
+        gVel = 0.04; //dobro da velocidade do player
         gFireRightDirection = fireDirection;
     };
     void Desenha(){ 

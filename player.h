@@ -29,7 +29,7 @@ public:
 
     Player(){
         gX = -157;
-        gY = -183.4;
+        gY = -180;
         initialBTheta = 90;
         bTheta = -90;
         pETheta1 = 0;
@@ -47,7 +47,14 @@ public:
     void RodaPernaD1(GLfloat inc);
     void RodaPernaD2(GLfloat inc);
     Tiro* Atira();
-    void MoveEmX(GLfloat dx);
-    void MoveEmY(GLfloat dy, bool jumping);
+    void MoveEmX(GLfloat dx, GLfloat timeDifference);
+    void MoveEmY(GLfloat dy);
+    void FreeFall (GLfloat dy);
+    void ResetJumpDistance();
+    void MoveEmMenosY(GLfloat dy, bool jumping);
+    void GetPos(GLfloat &xOut, GLfloat &yOut){
+        xOut = gX;
+        yOut = gY;
+    };
 };
 #endif //MAIN_CPP_PLAYER_H

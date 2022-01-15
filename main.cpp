@@ -8,15 +8,18 @@
 #include "tiro.h"
 #include <algorithm>
 #define INC_KEY 1
-#define INC_KEYIDLE 0.01
+#define INC_KEYIDLE 0.02 //player X Speed
 
 //Key status
 int keyStatus[256];
 
-bool jumping = false;
-bool inAir = false;
+bool pressingJumpKey = false;
+bool grounded = true;
+bool isJumping = false;
+bool test = false;
+float previousPlayerPosY = 0;
 
-float yVel = 0.01;
+float yVel = 0.01; //player Y Speed
 Player Player;
 Cenario Cenario;
 float camMove = 0;
@@ -106,15 +109,69 @@ void idle(void)
     //Treat keyPress
     if(keyStatus[(int)('a')])
     {
-        camMove++;
-        Player.MoveEmX(-inc);
+        camMove += inc * timeDiference;
+        //cout << camMove << endl;
+        Player.MoveEmX(-inc, timeDiference);
     }
     if(keyStatus[(int)('d')])
     {
-        camMove--;
-        Player.MoveEmX(inc);
+        camMove -= inc * timeDiference;
+        //cout << camMove << endl;
+        Player.MoveEmX(inc, timeDiference);
         //mover personagem e camera
     }
+
+    float playerPosX;
+    float playerPosY;
+    Player.GetPos(playerPosX,playerPosY);
+
+    string var1 = "";
+    string var2 = "";
+    string var3 = "";
+    string var4 = "";
+
+
+    //TODO ENTENDER ONDE ESTA PLAYERPOSY INICIALMENTE
+    if(playerPosY + 5.6 > -187.2 -10){
+        var1 = "true";
+    }else{
+        var1 = "false";
+    }
+    if(playerPosY - 3.8 < -187.2){
+        var2 = "true";
+    }else{
+        var2 = "false";
+    }
+
+    if(playerPosX < -163.5 + 364.1373){
+        var3 = "true";
+    }else{
+        var3 = "false";
+    }
+    if(playerPosX + 2 > -163.5){
+        var4 = "true";
+    }else{
+        var4 = "false";
+    }
+    //cout << "1:" << playerPosX << " " << -163.5 + 364.1373 << endl;
+    //cout << "2:" << playerPosX + 2 << " " << -163.5  << endl;
+    //cout << "3:" << playerPosY << " " << -187.2 - 10  << " "; //é flipado em Y por isso o menos
+    //cout << "4:" << playerPosY + 3.8 << " " << -187.2  << endl;
+    //cout << "1: " << var1 << " 2: " << var2 << " 3: " << var3 << " 4: " << var4 << "   " << playerPosY << endl;
+
+    //escrever no papel depois para entender
+    if(playerPosX < -163.5 + 364.1373 &&
+    playerPosX + 2 > -163.5 &&
+    playerPosY + 5.6 > -187.2 -10 &&
+    playerPosY - 3.8 < -187.2){
+        //cout << "Collisao" << endl;
+        grounded = true;
+        Player.ResetJumpDistance();
+        //isJumping = false;
+    }else{
+        grounded = false;
+    }
+
 
     //Trata o tiro (soh permite um tiro por vez)
     //Poderia usar uma lista para tratar varios tiros
@@ -133,13 +190,22 @@ void idle(void)
         }
     }
 
-    Player.MoveEmY(yVel, jumping);
+    if(isJumping && pressingJumpKey){
+        Player.MoveEmY(yVel);
+    }
+
+    if(!grounded && previousPlayerPosY == playerPosY){ //gravity?
+        Player.FreeFall(yVel);
+    }
+
+    //cout << "playerPos: " << playerPosY << " previousPlayerPos: " << previousPlayerPosY << endl;
     //std::cout << Player.ObtemDirection();
 
     glMatrixMode(GL_PROJECTION); // Select the projection matrix
     glLoadIdentity();
 
-    glTranslatef(camMove/45.9 +3.427/*offset*/,3.08/*offset*/,0);
+    //glTranslatef(camMove/45.9 +3.427/*offset*/,3.08/*offset*/,0);
+    glTranslatef((camMove/45.9) + 3.427/*offset*/,4/*offset*/,0);
 
     gluOrtho2D(-45.9,45.9,-45.9,45.9);
 
@@ -147,6 +213,8 @@ void idle(void)
     glLoadIdentity();
 
     glutPostRedisplay();
+
+    previousPlayerPosY = playerPosY;
 }
 void passive(int x1,int y1) {
 
@@ -178,13 +246,28 @@ void MyMouse(int button, int state, int x, int y)
 
         case GLUT_RIGHT_BUTTON:
             if(state == GLUT_DOWN){
-                if(!inAir)
-                    jumping = true;
+                pressingJumpKey = true;
+                if(grounded){
+                    isJumping = true;
+                }
             }
 
             if(state == GLUT_UP){
-                jumping = false;
+                pressingJumpKey = false;
+                isJumping = false;
             }
+            break;
+
+        case GLUT_MIDDLE_BUTTON:
+            if(state == GLUT_DOWN){
+                if(!grounded)
+                    test = true;
+            }
+
+            if(state == GLUT_UP){
+                test = false;
+            }
+            break;
     }
 }
 

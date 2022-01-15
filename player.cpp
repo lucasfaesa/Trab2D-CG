@@ -2,6 +2,8 @@
 #include "tiro.h"
 #include <cmath>
 #include <iostream>
+#include <cstdlib>
+
 
 float cabecaRadius = 1;
 float troncoHeight  = 3.8;
@@ -12,9 +14,11 @@ float pernaHeight  = 1.8;
 float pernaWidth  = 0.5;
 
 float jumpUpDistanceTraveled = 0;
-float maxJumpHeight = 32.1 ; //TODO tamanho do corpo do boneco
+float maxJumpHeight = 0 ; //TODO tamanho do corpo do boneco
+float previousPosY;
 
-bool falling;
+int calls1 = 0;
+int calls2 = 0;
 
 void Player::DesenhaRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B,GLfloat A)
 {
@@ -177,7 +181,7 @@ void Player::RodaPernaD2(GLfloat inc)
     pDTheta2 += inc * speed;
 }
 
-void Player::MoveEmX(GLfloat dx)
+void Player::MoveEmX(GLfloat dx, GLfloat timeDifference)
 {
     if(dx > 0){
         facingRight = true;
@@ -185,20 +189,41 @@ void Player::MoveEmX(GLfloat dx)
     if(dx < 0){
         facingRight = false;
     }
-    float speed = dx * 100;
-    gX += speed;
+
+    gX += dx * timeDifference;
 
 }
 
-void Player::MoveEmY(GLfloat dy, bool jumping)
+void Player::MoveEmY(GLfloat dy)
+{
+    float speed = 25;
+    maxJumpHeight = ((cabecaRadius*2+troncoHeight+pernaHeight*2) * 3);
+
+    if(fabs(jumpUpDistanceTraveled) <= maxJumpHeight){
+        gY += dy * speed;
+        jumpUpDistanceTraveled += previousPosY - gY;
+    }
+    previousPosY = gY;
+}
+void Player::FreeFall(GLfloat dy)
+{
+    float speed = 45;
+    gY -= dy * speed;
+    previousPosY = gY;
+}
+
+void Player::ResetJumpDistance(){
+    jumpUpDistanceTraveled = 0;
+}
+
+void Player::MoveEmMenosY(GLfloat dy, bool jumping)
 {
     if(!jumping) return;
 
     float speed = dy * 75;
+    //float speed = dy * 3;
     jumpUpDistanceTraveled += speed;
 
-    if(jumpUpDistanceTraveled <= maxJumpHeight && !falling){
-        gY += speed;
-    }
+    gY -= speed;
 
 }
