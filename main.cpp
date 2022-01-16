@@ -7,6 +7,8 @@
 #include "Cenario.h"
 #include "tiro.h"
 #include <algorithm>
+#include <cmath>
+
 #define INC_KEY 1
 #define INC_KEYIDLE 0.02 //player X Speed
 
@@ -14,10 +16,30 @@
 int keyStatus[256];
 
 bool pressingJumpKey = false;
-bool grounded = true;
 bool isJumping = false;
 bool test = false;
-float previousPlayerPosY = 0;
+
+Boxes boxesArray[50] = {};
+bool collidingOnRightSide;
+bool collidingOnLeftSide;
+bool collidingBottom;
+bool collidingTop;
+
+float previousPlayerLeft = 0;
+float previousPlayerRight = 0;
+float previousPlayerTop = 0;
+float previousPlayerBottom = 0;
+
+bool collidingBottomArray[50] ={};
+bool collidingTopArray[50] ={};
+bool collidingRightArray[50] ={};
+bool collidingLeftArray[50] ={};
+int contArray = 0;
+
+float currentPlayerBottom = 0;
+float currentPlayerRight =0;
+float currentPlayerLeft = 0;
+float currentPlayerTop = 0;
 
 float yVel = 0.01; //player Y Speed
 Player Player;
@@ -36,6 +58,10 @@ void renderScene(void)
 
     Cenario.Desenha();
     Player.Desenha();
+
+    if(boxesArray[0].height == 0){ //apenas evitando retrabalho, afinal a fase não muda de posicoes
+        Cenario.GetBoxesArray(boxesArray);
+    }
 
     if (tiro) tiro->Desenha();
 
@@ -77,6 +103,14 @@ void ResetKeyStatus()
 
 void init(int w, int h)
 {
+    float playerPosX;
+    float playerPosY;
+    Player.GetPos(playerPosX,playerPosY);
+    previousPlayerBottom = playerPosY  - 3.8;
+    previousPlayerRight = playerPosX + 2 / 2;
+    previousPlayerLeft = playerPosX - 2 / 2;
+    previousPlayerTop = playerPosY + 5.6;
+
     ResetKeyStatus();
     // The color the windows will redraw. Its done to erase the previous frame.
     int R  = 1;
@@ -109,50 +143,253 @@ void idle(void)
     //Treat keyPress
     if(keyStatus[(int)('a')])
     {
-        camMove += inc * timeDiference;
-        //cout << camMove << endl;
-        Player.MoveEmX(-inc, timeDiference);
+        if(!collidingOnLeftSide){
+            camMove += inc * timeDiference;
+            //cout << camMove << endl;
+            Player.MoveEmX(-inc, timeDiference);
+        }
     }
     if(keyStatus[(int)('d')])
     {
-        camMove -= inc * timeDiference;
-        //cout << camMove << endl;
-        Player.MoveEmX(inc, timeDiference);
-        //mover personagem e camera
+        if(!collidingOnRightSide) {
+            camMove -= inc * timeDiference;
+            //cout << camMove << endl;
+            Player.MoveEmX(inc, timeDiference);
+            //mover personagem e camera
+        }
     }
+
+
+
+    bool var1 = "";
+    bool var2 = "";
+    bool var3 = "";
+    bool var4 = "";
+
+    float boxLeft = -163.5;
+    float boxRight = -163.5 + 364.1373;
+    float boxTop = -187.2;
+    float boxBottom = -187.2000 - 10;
 
     float playerPosX;
     float playerPosY;
     Player.GetPos(playerPosX,playerPosY);
 
-    string var1 = "";
-    string var2 = "";
-    string var3 = "";
-    string var4 = "";
+    currentPlayerBottom = playerPosY - 3.8;
+    currentPlayerRight = playerPosX + 2 / 2;
+    currentPlayerLeft = playerPosX - 2 / 2;
+    currentPlayerTop = playerPosY + 5.6;
 
+    //cout << "p: " << previousPlayerBottom << " c: " << currentPlayerBottom << " " << boxTop << endl;
 
-    //TODO ENTENDER ONDE ESTA PLAYERPOSY INICIALMENTE
-    if(playerPosY + 5.6 > -187.2 -10){
-        var1 = "true";
+    /*if(currentPlayerBottom <= boxTop && currentPlayerBottom >= boxBottom && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight
+       && !collidingOnLeftSide && !collidingOnRightSide
+       ){
+        if(!grounded){
+            grounded = true;
+            Player.SetPlayerY(boxTop);
+            Player.ResetJumpDistance();
+            //Player.GetPos(playerPosX,playerPosY);
+            // cout << foot << "     " << boxTop << endl;
+            collidingBottom = true;
+        }
     }else{
-        var1 = "false";
+        grounded = false;
+
+        collidingBottom = false;
+    }*/
+
+    int contBottom = 0;
+    int contRight = 0;
+    int contTop = 0;
+    int contLeft = 0;
+
+    for (Boxes box : boxesArray){
+        if(box.height == 0) break;
+
+        float boxLeft = box.xPos;
+        float boxRight = box.xPos + box.width;
+        float boxTop = box.yPos;
+        float boxBottom = box.yPos + box.height;
+
+        if(box.height == -10){
+            int a = 10;
+        }
+        if(previousPlayerBottom > boxTop && currentPlayerBottom <= boxTop && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight){
+            cout << "grounded" << endl;
+            Player.ResetJumpDistance();
+            //collidingBottom = true;
+            //collidingBottomArray[contArray] = true;
+            contBottom++;
+            //cout << "grounded" <<  endl;
+        }else{
+            //collidingBottom = false;
+            collidingBottomArray[contArray] = false;
+            //previousPlayerBottom = currentPlayerBottom;
+            //cout << "not grounded" <<  endl;
+        }
+
+        if(previousPlayerRight < boxLeft && currentPlayerRight >= boxLeft &&  currentPlayerBottom < boxTop && currentPlayerTop > boxBottom){
+            //collidingOnRightSide = true;
+            collidingRightArray[contArray] = true;
+            contRight++;
+        }else{
+            //collidingOnRightSide = false;
+            collidingRightArray[contArray] = false;
+
+        }
+
+        if(previousPlayerLeft > boxRight && currentPlayerLeft <= boxRight && currentPlayerBottom < boxTop && currentPlayerTop > boxBottom){
+            //collidingOnLeftSide = true;
+            collidingLeftArray[contArray] = true;
+            contLeft++;
+        }else{
+            //collidingOnLeftSide = false;
+            collidingLeftArray[contArray] = false;
+
+        }
+
+        if(previousPlayerTop < boxBottom && currentPlayerTop >= boxBottom && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight){
+           // collidingTop = true;
+            collidingTopArray[contArray] = true;
+            contTop++;
+        }else{
+            //collidingTop = false;
+            collidingTopArray[contArray] = false;
+        }
+
+        contArray++;
+    }
+
+    contArray = 0;
+
+    if(contBottom > 0)
+        collidingBottom = true;
+    else{
+        collidingBottom = false;
+        previousPlayerBottom = currentPlayerBottom;
+    }
+
+    if(contRight > 0)
+        collidingOnRightSide = true;
+    else{
+        collidingOnRightSide = false;
+        previousPlayerRight = currentPlayerRight;
+    }
+
+
+    if(contLeft > 0)
+        collidingOnLeftSide = true;
+    else{
+        collidingOnLeftSide = false;
+        previousPlayerLeft = currentPlayerLeft;
+    }
+
+
+    if(contTop > 0)
+        collidingTop = true;
+    else{
+        collidingTop = false;
+        previousPlayerTop = currentPlayerTop;
+    }
+
+    if(collidingTop){
+        isJumping = false;
+    }
+
+    /*for (int i=0; i < sizeof(collidingBottomArray); i++){
+        if(collidingBottomArray[i]){
+            contBottom++;
+        }
+        if(collidingRightArray[i]){
+            collidingOnRightSide = true;
+        }
+        if(collidingLeftArray[i]){
+            collidingOnLeftSide = true;
+        }
+        if(collidingTopArray[i]){
+            collidingTop = true;
+        }
+    }*/
+
+
+    /*if(previousPlayerBottom > boxTop && currentPlayerBottom <= boxTop && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight){
+        Player.ResetJumpDistance();
+        collidingBottom = true;
+        cout << "grounded" <<  endl;
+    }else{
+
+        collidingBottom = false;
+        previousPlayerBottom = currentPlayerBottom;
+        cout << "not grounded" <<  endl;
+    }
+
+    if(previousPlayerRight < boxLeft && currentPlayerRight >= boxLeft &&  currentPlayerBottom < boxTop && currentPlayerTop > boxBottom){
+        collidingOnRightSide = true;
+    }else{
+        collidingOnRightSide = false;
+        previousPlayerRight = currentPlayerRight;
+    }
+
+    if(previousPlayerLeft > boxRight && currentPlayerLeft <= boxRight && currentPlayerBottom < boxTop && currentPlayerTop > boxBottom){
+        collidingOnLeftSide = true;
+    }else{
+        collidingOnLeftSide = false;
+        previousPlayerLeft = currentPlayerLeft;
+    }
+
+    if(previousPlayerTop < boxBottom && currentPlayerTop >= boxBottom && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight){
+        collidingTop = true;
+    }else{
+        collidingTop = false;
+        previousPlayerTop = currentPlayerTop;
+    }*/
+
+    /*if(currentPlayerRight >= boxLeft && currentPlayerRight < boxRight && currentPlayerBottom < boxTop && currentPlayerTop > boxBottom
+        ){
+        collidingOnRightSide = true;
+    }else{
+        collidingOnRightSide = false;
+    }
+
+    if(currentPlayerTop >= boxBottom && currentPlayerTop <= boxTop && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight
+       ){
+        collidingTop = true;
+    }else{
+        collidingTop = false;
+    }
+
+    if(currentPlayerLeft <= boxRight && currentPlayerLeft > boxLeft && currentPlayerBottom < boxTop && currentPlayerTop > boxBottom
+        ){
+        collidingOnLeftSide = true;
+    }else{
+        collidingOnLeftSide = false;
+    }*/
+
+
+    //TODO ENTENDER ONDE ESTA PLAYERPOSY INICIALMENTE (descobri, está na base do tronco)
+   /* if(playerPosY + 5.6 > -187.2 -10){
+        var1 = true;
+    }else{
+        var1 = false;
     }
     if(playerPosY - 3.8 < -187.2){
-        var2 = "true";
+        var2 = true;
     }else{
-        var2 = "false";
+        var2 = false;
     }
 
     if(playerPosX < -163.5 + 364.1373){
-        var3 = "true";
+        var3 = true;
     }else{
-        var3 = "false";
+        var3 = false;
     }
     if(playerPosX + 2 > -163.5){
-        var4 = "true";
+        var4 = true;
     }else{
-        var4 = "false";
+        var4 = false;
     }
+
     //cout << "1:" << playerPosX << " " << -163.5 + 364.1373 << endl;
     //cout << "2:" << playerPosX + 2 << " " << -163.5  << endl;
     //cout << "3:" << playerPosY << " " << -187.2 - 10  << " "; //é flipado em Y por isso o menos
@@ -162,15 +399,15 @@ void idle(void)
     //escrever no papel depois para entender
     if(playerPosX < -163.5 + 364.1373 &&
     playerPosX + 2 > -163.5 &&
-    playerPosY + 5.6 > -187.2 -10 &&
-    playerPosY - 3.8 < -187.2){
+    playerPosY + 5.6 >= -187.2 -10 &&
+    playerPosY - 3.8 <= -187.1){
         //cout << "Collisao" << endl;
         grounded = true;
         Player.ResetJumpDistance();
         //isJumping = false;
     }else{
         grounded = false;
-    }
+    }*/
 
 
     //Trata o tiro (soh permite um tiro por vez)
@@ -190,11 +427,18 @@ void idle(void)
         }
     }
 
+
     if(isJumping && pressingJumpKey){
-        Player.MoveEmY(yVel);
+        Player.MoveEmY(yVel, isJumping);
     }
 
-    if(!grounded && previousPlayerPosY == playerPosY){ //gravity?
+    /*if(pressingJumpKey){
+        Player.MoveEmMenosY(-yVel, true);
+    }*/
+    if(test){
+        Player.MoveEmMenosY(yVel, true);
+    }
+    if(!collidingBottom && previousPlayerBottom == currentPlayerBottom && !isJumping){ //gravity?
         Player.FreeFall(yVel);
     }
 
@@ -214,7 +458,13 @@ void idle(void)
 
     glutPostRedisplay();
 
-    previousPlayerPosY = playerPosY;
+    //Player.GetPos(playerPosX,playerPosY);
+
+
+
+
+    //previousPlayerBottom = currentPlayerBottom;
+
 }
 void passive(int x1,int y1) {
 
@@ -247,7 +497,7 @@ void MyMouse(int button, int state, int x, int y)
         case GLUT_RIGHT_BUTTON:
             if(state == GLUT_DOWN){
                 pressingJumpKey = true;
-                if(grounded){
+                if(collidingBottom){
                     isJumping = true;
                 }
             }
@@ -260,7 +510,7 @@ void MyMouse(int button, int state, int x, int y)
 
         case GLUT_MIDDLE_BUTTON:
             if(state == GLUT_DOWN){
-                if(!grounded)
+                if(!collidingBottom)
                     test = true;
             }
 

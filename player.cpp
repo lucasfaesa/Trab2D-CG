@@ -90,7 +90,7 @@ void Player::DesenhaPerna(GLfloat x, GLfloat y, GLfloat pEtheta1, GLfloat pEthet
     DesenhaRect(-pernaHeight,pernaWidth,1,0,0,1); //desenhando primeira perna direita
     glTranslatef(0,-pernaHeight,0);
     glRotatef(pDtheta2,0,0,1);
-    DesenhaRect(-pernaHeight,pernaWidth,0,0,0,1); //desenhando segunda perna direita*/
+    DesenhaRect(-pernaHeight,pernaWidth,1,1,1,1); //desenhando segunda perna direita*/
     glPopMatrix();
 }
 
@@ -105,19 +105,6 @@ void Player::DesenhaCollider() {
 void Player::DesenhaPlayer(GLfloat x, GLfloat y, GLfloat bTheta, GLfloat pETheta1, GLfloat pETheta2, GLfloat pDTheta1, GLfloat pDTheta2)
 {
     glLoadIdentity();
-
-    glColor3ub(254,0,0);
-    glBegin(GL_LINES);
-    glVertex3f(-500.0,0.0,0.0);
-    glVertex3f(500.0,0.0,0.0);
-    glEnd();
-
-    glColor3ub(31,255,0);
-    glBegin(GL_LINES);
-    glVertex3f(0.0,-500.0,0.0);
-    glVertex3f(0.0,500.0,0.0);
-    glEnd();
-
     glFlush();
 
     glPushMatrix();
@@ -194,7 +181,7 @@ void Player::MoveEmX(GLfloat dx, GLfloat timeDifference)
 
 }
 
-void Player::MoveEmY(GLfloat dy)
+void Player::MoveEmY(GLfloat dy, bool &isJumping)
 {
     float speed = 25;
     maxJumpHeight = ((cabecaRadius*2+troncoHeight+pernaHeight*2) * 3);
@@ -202,14 +189,22 @@ void Player::MoveEmY(GLfloat dy)
     if(fabs(jumpUpDistanceTraveled) <= maxJumpHeight){
         gY += dy * speed;
         jumpUpDistanceTraveled += previousPosY - gY;
+        isJumping = true;
+    }else{
+        isJumping = false;
     }
     previousPosY = gY;
 }
 void Player::FreeFall(GLfloat dy)
 {
-    float speed = 45;
+    float speed = 25;
     gY -= dy * speed;
     previousPosY = gY;
+}
+
+void Player::SetPlayerY(GLfloat yPos){
+
+    gY = yPos + 3.8000;
 }
 
 void Player::ResetJumpDistance(){

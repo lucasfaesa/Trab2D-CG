@@ -4,6 +4,8 @@
 #include <cmath>
 using namespace std;
 
+int cont = 0;
+
 void Cenario::DesenhaRect(GLfloat x, GLfloat y, GLfloat height, GLfloat width, string color)
 {
     float R = 0;
@@ -13,24 +15,28 @@ void Cenario::DesenhaRect(GLfloat x, GLfloat y, GLfloat height, GLfloat width, s
         R = 0;
         G = 0;
         B = 1;
+    }if(color == "green"){
+        R = 0;
+        G = 1;
+        B = 0;
     }
 
-
     glPushMatrix();
-    glScalef(1,-1,1); //invertendo
-    glTranslatef(x+width/2,y,0);
+    glTranslatef(x+width/2,-y,0); //invertendo y
     glBegin(GL_QUADS);
 
     glColor3f(R,G,B);// Face posterior
     //glNormal3f(0.0, 0.0, 1.0);	// Normal da face
-    glVertex2f(width/2, height);
-    glVertex2f(-width/2,height);
+    glVertex2f(width/2, -height); //invertendo height
+    glVertex2f(-width/2,-height); //invertendo height
     glVertex2f(-width/2, 0);
     glVertex2f(width/2, 0);
     glEnd();
 
     glPopMatrix();
 
+    Cenario::AddBoxesToArray(cont,x,-y,-height,width);
+    cont++;
 }
 
 void DesenhaRect2(GLfloat x, GLfloat y, GLfloat height, GLfloat width, string color)
@@ -42,6 +48,11 @@ void DesenhaRect2(GLfloat x, GLfloat y, GLfloat height, GLfloat width, string co
         R = 0;
         G = 0;
         B = 1;
+    }
+    if(color == "green"){
+        R = 0;
+        G = 1;
+        B = 0;
     }
 
 
@@ -124,10 +135,10 @@ void Cenario::DesenhaCenario() {
 
         DesenhaCirc(iX,iY,iR,pAttrFill);
     }
+    //Cenario::AddBoxesToArray(cont,-163.5,-187.2,-10,364.1373);
+    cont = 0;
 
-
-    //Desenhar chão
-    DesenhaRect2(-163.5, -187.2, -10,364.1373,"black");
+    DesenhaRect(-163.5, 187.2, 10,364.1373,"black");
 }
 
 

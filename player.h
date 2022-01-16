@@ -48,9 +48,10 @@ public:
     void RodaPernaD2(GLfloat inc);
     Tiro* Atira();
     void MoveEmX(GLfloat dx, GLfloat timeDifference);
-    void MoveEmY(GLfloat dy);
+    void MoveEmY(GLfloat dy, bool &isJumping);
     void FreeFall (GLfloat dy);
     void ResetJumpDistance();
+    void SetPlayerY(GLfloat yPos);
     void MoveEmMenosY(GLfloat dy, bool jumping);
     void GetPos(GLfloat &xOut, GLfloat &yOut){
         xOut = gX;
