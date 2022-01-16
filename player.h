@@ -32,9 +32,9 @@ public:
         gY = -180;
         initialBTheta = 90;
         bTheta = -90;
-        pETheta1 = 0;
+        pETheta1 = 30;
         pETheta2 = 0;
-        pDTheta1 = 0;
+        pDTheta1 = -30;
         pDTheta2 = 0;
     };
     void Desenha(){

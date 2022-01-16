@@ -6,6 +6,7 @@
 #include "tinyxml2.h"
 #include "Cenario.h"
 #include "tiro.h"
+#include "enemy.h"
 #include <algorithm>
 #include <cmath>
 
@@ -44,6 +45,8 @@ float currentPlayerTop = 0;
 float yVel = 0.01; //player Y Speed
 Player Player;
 Cenario Cenario;
+Enemy Enemy;
+
 float camMove = 0;
 int curY = 0;
 Tiro * tiro = NULL; //Um tiro por vez
@@ -58,6 +61,7 @@ void renderScene(void)
 
     Cenario.Desenha();
     Player.Desenha();
+    Enemy.Desenha();
 
     if(boxesArray[0].height == 0){ //apenas evitando retrabalho, afinal a fase não muda de posicoes
         Cenario.GetBoxesArray(boxesArray);
@@ -147,6 +151,12 @@ void idle(void)
             camMove += inc * timeDiference;
             //cout << camMove << endl;
             Player.MoveEmX(-inc, timeDiference);
+            if(collidingBottom){
+                Player.RodaPernaD1(-inc);
+                //Player.RodaPernaD2(-inc);
+                Player.RodaPernaE1(-inc);
+                //Player.RodaPernaE2(-inc);
+            }
         }
     }
     if(keyStatus[(int)('d')])
@@ -155,21 +165,14 @@ void idle(void)
             camMove -= inc * timeDiference;
             //cout << camMove << endl;
             Player.MoveEmX(inc, timeDiference);
-            //mover personagem e camera
+            if(collidingBottom){
+                Player.RodaPernaD1(inc);
+                //Player.RodaPernaD2(inc);
+                Player.RodaPernaE1(inc);
+                //Player.RodaPernaE2(inc);
+            }
         }
     }
-
-
-
-    bool var1 = "";
-    bool var2 = "";
-    bool var3 = "";
-    bool var4 = "";
-
-    float boxLeft = -163.5;
-    float boxRight = -163.5 + 364.1373;
-    float boxTop = -187.2;
-    float boxBottom = -187.2000 - 10;
 
     float playerPosX;
     float playerPosY;
@@ -179,25 +182,6 @@ void idle(void)
     currentPlayerRight = playerPosX + 2 / 2;
     currentPlayerLeft = playerPosX - 2 / 2;
     currentPlayerTop = playerPosY + 5.6;
-
-    //cout << "p: " << previousPlayerBottom << " c: " << currentPlayerBottom << " " << boxTop << endl;
-
-    /*if(currentPlayerBottom <= boxTop && currentPlayerBottom >= boxBottom && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight
-       && !collidingOnLeftSide && !collidingOnRightSide
-       ){
-        if(!grounded){
-            grounded = true;
-            Player.SetPlayerY(boxTop);
-            Player.ResetJumpDistance();
-            //Player.GetPos(playerPosX,playerPosY);
-            // cout << foot << "     " << boxTop << endl;
-            collidingBottom = true;
-        }
-    }else{
-        grounded = false;
-
-        collidingBottom = false;
-    }*/
 
     int contBottom = 0;
     int contRight = 0;
@@ -216,7 +200,6 @@ void idle(void)
             int a = 10;
         }
         if(previousPlayerBottom > boxTop && currentPlayerBottom <= boxTop && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight){
-            cout << "grounded" << endl;
             Player.ResetJumpDistance();
             //collidingBottom = true;
             //collidingBottomArray[contArray] = true;
@@ -439,7 +422,7 @@ void idle(void)
         Player.MoveEmMenosY(yVel, true);
     }
     if(!collidingBottom && previousPlayerBottom == currentPlayerBottom && !isJumping){ //gravity?
-        Player.FreeFall(yVel);
+       Player.FreeFall(yVel);
     }
 
     //cout << "playerPos: " << playerPosY << " previousPlayerPos: " << previousPlayerPosY << endl;
@@ -448,8 +431,8 @@ void idle(void)
     glMatrixMode(GL_PROJECTION); // Select the projection matrix
     glLoadIdentity();
 
-    //glTranslatef(camMove/45.9 +3.427/*offset*/,3.08/*offset*/,0);
-    glTranslatef((camMove/45.9) + 3.427/*offset*/,4/*offset*/,0);
+    glTranslatef(camMove/45.9 +3.427/*offset*/,3.08/*offset*/,0);
+    //glTranslatef((camMove/45.9) + 3.427/*offset*/,4/*offset*/,0);
 
     gluOrtho2D(-45.9,45.9,-45.9,45.9);
 
@@ -459,10 +442,6 @@ void idle(void)
     glutPostRedisplay();
 
     //Player.GetPos(playerPosX,playerPosY);
-
-
-
-
     //previousPlayerBottom = currentPlayerBottom;
 
 }
