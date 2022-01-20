@@ -18,6 +18,7 @@ float enemyPreviousPosY;
 
 bool enemyRotatePernaD1Backwards;
 bool enemyRotatePernaE1Backwards;
+int contEnemies = 0;
 
 void Enemy::DesenhaRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B,GLfloat A)
 {
@@ -147,6 +148,9 @@ void Enemy::DesenhaEnemy(GLfloat x, GLfloat y, GLfloat bTheta, GLfloat pETheta1,
     DesenhaPerna(0, 0,pETheta1,pETheta2, pDTheta1, pDTheta2);
 
     glPopMatrix();
+
+
+
 }
 
 Tiro* Enemy::Atira() {
@@ -166,7 +170,7 @@ Tiro* Enemy::Atira() {
 
 }
 
-void Enemy::DesenhaTodos() {
+void Enemy::GetEnemiesFromSvg() {
     tinyxml2::XMLDocument doc;
     doc.LoadFile(
             "C:/Users/lucas/Desktop/Trab2D/arena_teste.svg"); //TODO modificar para input externo via linha de comando futuramente
@@ -185,7 +189,21 @@ void Enemy::DesenhaTodos() {
         float iR = strtof(pAttrR, NULL);
 
 
-        DesenhaEnemy(iX, -iY, -90, 30, 0, -30, 0);
+        DesenhaEnemy(iX, -iY - 1.5 /*offset*/, -90, 30, 0, -30, 0);
+
+        Enemy::AddEnemiesToArray(contEnemies, iX, -iY - 1.5, -90, 30, 0, -30, 0);
+
+        contEnemies++;
+    }
+    contEnemies = 0;
+}
+void Enemy::DesenhaTodos() {
+
+    for(int i =0; i<sizeof(enemiesObj); i++){
+        if(enemiesObj[i].gY == 0) break;
+
+        if(enemiesObj[i].canBeDrawn)
+            DesenhaEnemy(enemiesObj[i].gX,enemiesObj[i].gY,enemiesObj[i].bTheta,enemiesObj[i].pETheta1,enemiesObj[i].pETheta2,enemiesObj[i].pDTheta1,enemiesObj[i].pDTheta2);
     }
 }
 

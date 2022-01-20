@@ -14,6 +14,7 @@ public:
     float yPos;
     float height;
     float width;
+    string color;
 };
 
 class Cenario {
@@ -22,11 +23,13 @@ private:
     void DesenhaRect(GLfloat x, GLfloat y, GLfloat height, GLfloat width, string color);
     void DesenhaCirc(GLfloat x, GLfloat y, GLfloat radius, string color);
     void DesenhaCenario();
-    void AddBoxesToArray(int index, float x, float y, float h, float w){
+    void GetCenarioFromSvg();
+    void AddBoxesToArray(int index, float x, float y, float h, float w, string color){
         boxesObj[index].xPos = x;
         boxesObj[index].yPos = y;
         boxesObj[index].height = h;
         boxesObj[index].width = w;
+        boxesObj[index].color = color;
     }
 public:
     Boxes boxesObj[50] = {};
@@ -34,6 +37,11 @@ public:
     void Desenha(){
         DesenhaCenario();
     };
+
+    void GetFromSvg(){
+        GetCenarioFromSvg();
+    }
+
     void GetBoxesArray(Boxes (&x)[50]){
 
         memcpy(x, boxesObj, sizeof(x));

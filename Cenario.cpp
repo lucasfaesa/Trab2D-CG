@@ -22,42 +22,6 @@ void Cenario::DesenhaRect(GLfloat x, GLfloat y, GLfloat height, GLfloat width, s
     }
 
     glPushMatrix();
-    glTranslatef(x+width/2,-y,0); //invertendo y
-    glBegin(GL_QUADS);
-
-    glColor3f(R,G,B);// Face posterior
-    //glNormal3f(0.0, 0.0, 1.0);	// Normal da face
-    glVertex2f(width/2, -height); //invertendo height
-    glVertex2f(-width/2,-height); //invertendo height
-    glVertex2f(-width/2, 0);
-    glVertex2f(width/2, 0);
-    glEnd();
-
-    glPopMatrix();
-
-    Cenario::AddBoxesToArray(cont,x,-y,-height,width);
-    cont++;
-}
-
-void DesenhaRect2(GLfloat x, GLfloat y, GLfloat height, GLfloat width, string color)
-{
-    float R = 0;
-    float G = 0;
-    float B = 0;
-    if(color == "blue"){
-        R = 0;
-        G = 0;
-        B = 1;
-    }
-    if(color == "green"){
-        R = 0;
-        G = 1;
-        B = 0;
-    }
-
-
-    glPushMatrix();
-    //glScalef(1,-1,1); //invertendo
     glTranslatef(x+width/2,y,0);
     glBegin(GL_QUADS);
 
@@ -70,7 +34,6 @@ void DesenhaRect2(GLfloat x, GLfloat y, GLfloat height, GLfloat width, string co
     glEnd();
 
     glPopMatrix();
-
 }
 
 void Cenario::DesenhaCirc(GLfloat x, GLfloat y, GLfloat radius, string color)
@@ -102,6 +65,17 @@ void Cenario::DesenhaCirc(GLfloat x, GLfloat y, GLfloat radius, string color)
 }
 
 void Cenario::DesenhaCenario() {
+
+    for(int i =0; i<sizeof(boxesObj); i++){
+        if(boxesObj[i].height == 0) break;
+
+        DesenhaRect(boxesObj[i].xPos,boxesObj[i].yPos,boxesObj[i].height,boxesObj[i].width,boxesObj[i].color);
+    }
+
+   // DesenhaRect(-163.5, -187.2, -10,364.1373,"black");
+}
+
+void Cenario::GetCenarioFromSvg() {
     tinyxml2::XMLDocument doc;
     doc.LoadFile("C:/Users/lucas/Desktop/Trab2D/arena_teste.svg"); //TODO modificar para input externo via linha de comando futuramente
 
@@ -119,7 +93,9 @@ void Cenario::DesenhaCenario() {
         float iX = strtof(pAttrX, NULL);
         float iY = strtof(pAttrY, NULL);
 
-        DesenhaRect(iX,iY,iHeight,iWidth,pAttrFill);
+
+        Cenario::AddBoxesToArray(cont,iX,-iY,-iHeight,iWidth, child->Attribute("fill")); //invetendo Y e altura para desenho correto
+        cont++;
     }
 
     for (tinyxml2::XMLElement *child = levelElement->FirstChildElement("circle");
@@ -135,10 +111,11 @@ void Cenario::DesenhaCenario() {
 
         DesenhaCirc(iX,iY,iR,pAttrFill);
     }
-    //Cenario::AddBoxesToArray(cont,-163.5,-187.2,-10,364.1373);
-    cont = 0;
 
-    DesenhaRect(-163.5, 187.2, 10,364.1373,"black");
+    //#temp
+    Cenario::AddBoxesToArray(cont, -163.5, -187.2, -10,364.1373,"black");
+    //#temp
+    cont = 0;
 }
 
 
