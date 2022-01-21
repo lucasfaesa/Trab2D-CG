@@ -11,7 +11,8 @@
 #include <cmath>
 
 #define INC_KEY 1
-#define INC_KEYIDLE 0.02 //player X Speed
+//#define INC_KEYIDLE 0.02 //player X Speed
+#define INC_KEYIDLE 0.16 //player X Speed
 
 //Key status
 int keyStatus[256];
@@ -25,28 +26,40 @@ bool isJumping = false;
 bool test = false;
 
 Boxes boxesArray[50] = {};
-Enemies enemiesArray[50] = {};
+Enemies enemiesArray[7] = {};
 
-bool collidingOnRightSide;
-bool collidingOnLeftSide;
-bool collidingBottom;
-bool collidingTop;
+bool playerCollidingOnRightSide;
+bool playerCollidingOnLeftSide;
+bool playerCollidingBottom;
+bool playerCollidingTop;
+
+bool enemyCollidingRightSide[7] = {};
+bool enemyCollidingLeftSide[7] = {};
+bool enemyCollidingBottom[7] = {};
+bool enemyCollidingTop[7] = {};
+
+bool enemyChangedDirectionNoGround[7] = {};
+bool enemyReachedGround[7] = {};
 
 float previousPlayerLeft = 0;
 float previousPlayerRight = 0;
 float previousPlayerTop = 0;
 float previousPlayerBottom = 0;
 
-bool collidingBottomArray[50] ={};
-bool collidingTopArray[50] ={};
-bool collidingRightArray[50] ={};
-bool collidingLeftArray[50] ={};
-int contArray = 0;
+float previousEnemyLeft[7] = {};
+float previousEnemyRight[7] = {};
+float previousEnemyTop[7] = {};
+float previousEnemyBottom[7] = {};
 
 float currentPlayerBottom = 0;
 float currentPlayerRight =0;
 float currentPlayerLeft = 0;
 float currentPlayerTop = 0;
+
+float currentEnemyBottom = 0;
+float currentEnemyRight =0;
+float currentEnemyLeft = 0;
+float currentEnemyTop = 0;
 
 float yVel = 0.01; //player Y Speed
 
@@ -58,12 +71,12 @@ Tiro * tiro = NULL; //Um tiro por vez
 
 
 void CheckKeyPress(GLdouble diference);
-
 void CheckPlayerCollision();
-
 void MoveCamera();
-
 void CheckPlayerTiro(GLdouble diference);
+void MoveEnemies(GLdouble diference);
+
+void CheckEnemiesCollision();
 
 // Window dimensions
 const GLint Width = 500;
@@ -78,11 +91,6 @@ void renderScene(void)
     Cenario.Desenha();
     Player.Desenha();
     Enemy.Desenha();
-
-    if(enemiesArray[0].gY == 0){
-        Enemy.GetEnemiesArray(enemiesArray);
-        //std::cout << enemiesArray[0].gY << std::endl;
-    }
 
     if (tiro) tiro->Desenha();
 
@@ -128,7 +136,9 @@ void init(int w, int h)
     Cenario.GetFromSvg();
 
     Cenario.GetBoxesArray(boxesArray);
+    Enemy.GetEnemiesArray(enemiesArray);
 
+    //## PLAYER
     float playerPosX;
     float playerPosY;
     Player.GetPos(playerPosX,playerPosY);
@@ -136,6 +146,18 @@ void init(int w, int h)
     previousPlayerRight = playerPosX + 2 / 2;
     previousPlayerLeft = playerPosX - 2 / 2;
     previousPlayerTop = playerPosY + 5.6;
+
+    //## ENEMY
+    float enemyPosX[7] = {};
+    float enemyPosY[7] = {};
+    for(int i=0;i<sizeof(enemiesArray)/sizeof(enemiesArray[0]); i++) {
+        Enemy.GetPos(i, enemyPosX[i], enemyPosY[i]);
+
+        previousEnemyBottom[i] = enemyPosY[i] - 3.6; //perna height x 2
+        previousEnemyRight[i] = enemyPosX[i] + 2 / 2; //metade da largura do tronco
+        previousEnemyLeft[i] = enemyPosX[i] - 2 / 2; //metade da largura do tronco
+        previousEnemyTop[i] = enemyPosY[i] + 5.6; //cabeca x 2 + altura do tronco
+    }
 
     ResetKeyStatus();
     // The color the windows will redraw. Its done to erase the previous frame.
@@ -166,8 +188,12 @@ void idle(void)
 
 
     CheckKeyPress(timeDiference);
-    CheckPlayerCollision();
+    //CheckPlayerCollision();
     CheckPlayerTiro(timeDiference);
+    //Enemy.MoveEmX(0,enemiesArray[0].speed, timeDiference);
+    //Enemy.MoveEmX(1,enemiesArray[1].speed, timeDiference);
+    CheckEnemiesCollision();
+    MoveEnemies(timeDiference);
     MoveCamera();
 
     //Trata o tiro (soh permite um tiro por vez)
@@ -195,12 +221,122 @@ void idle(void)
     /*if(test){
         Player.MoveEmMenosY(yVel, true);
     }*/
-    if(!collidingBottom && previousPlayerBottom == currentPlayerBottom && !isJumping){ //gravity?
-       Player.FreeFall(yVel);
-    }
+
 
     glutPostRedisplay();
 
+}
+
+void CheckEnemiesCollision() {
+    float enemyPosX[7] = {};
+    float enemyPosY[7] = {};
+
+    for(int i=0;i<sizeof(enemiesArray)/sizeof(enemiesArray[0]); i++) {
+    //for (int i = 0; i < 1; i++) {
+        //i = 3;
+        Enemy.GetPos(i, enemyPosX[i], enemyPosY[i]);
+
+        currentEnemyBottom = enemyPosY[i] - 3.6; //perna height x 2
+        currentEnemyRight = enemyPosX[i] + 2 / 2; //metade da largura do tronco
+        currentEnemyLeft = enemyPosX[i] - 2 / 2; //metade da largura do tronco
+        currentEnemyTop = enemyPosY[i] + 5.6; //cabeca x 2 + altura do tronco
+
+        int contCollisionBottom = 0;
+        int contCollisionRight = 0;
+        int contCollisionTop = 0;
+        int contCollisionLeft = 0;
+
+        for (Boxes box: boxesArray) {
+            if (box.height == 0) break;
+
+            float boxLeft = box.xPos;
+            float boxRight = box.xPos + box.width;
+            float boxTop = box.yPos;
+            float boxBottom = box.yPos + box.height;
+
+            //devido a contagem de colisões com varias caixas, apenas uma irá ter uma colisao no topo, se não houver um cont de colisões
+            //a proxima verificação de colisão dará false, pois naquela caixa especifica não há o player em cima;
+
+
+            if (/*previousEnemyBottom[i] > boxTop && */currentEnemyBottom <= boxTop && currentEnemyTop > boxBottom && currentEnemyRight > boxLeft &&
+                                                       currentEnemyLeft < boxRight) {
+                contCollisionBottom++;
+            }
+
+            if (previousEnemyRight[i] < boxLeft && currentEnemyRight >= boxLeft && currentEnemyBottom + 0.25 < boxTop &&
+                currentEnemyTop > boxBottom) {
+                contCollisionRight++;
+            }
+
+            if (previousEnemyLeft[i] > boxRight && currentEnemyLeft <= boxRight && currentEnemyBottom + 0.25 < boxTop &&
+                currentEnemyTop > boxBottom) {
+                contCollisionLeft++;
+
+            }
+
+            if (previousEnemyTop[i] < boxBottom && currentEnemyTop >= boxBottom && currentEnemyRight > boxLeft &&
+                currentEnemyLeft < boxRight) {
+                contCollisionTop++;
+            }
+        }
+
+        if (contCollisionBottom > 0) {
+            enemyCollidingBottom[i] = true;
+            enemyChangedDirectionNoGround[i] = false;
+            enemyReachedGround[i] = true;
+        } else {
+            enemyCollidingBottom[i] = false;
+            previousEnemyBottom[i] = currentEnemyBottom;
+        }
+
+        if (contCollisionRight > 0 )
+            enemyCollidingRightSide[i] = true;
+
+        else {
+            enemyCollidingRightSide[i] = false;
+            previousEnemyRight[i] = currentEnemyRight;
+        }
+
+        if (contCollisionLeft > 0)
+            enemyCollidingLeftSide[i] = true;
+        else {
+            enemyCollidingLeftSide[i] = false;
+            previousEnemyLeft[i] = currentEnemyLeft;
+        }
+
+        if (contCollisionTop > 0)
+            enemyCollidingTop[i] = true;
+        else {
+            enemyCollidingTop[i] = false;
+            previousEnemyTop[i] = currentEnemyTop;
+        }
+
+
+        if (!enemyCollidingBottom[i] /*&& previousEnemyBottom[i] == currentEnemyBottom && !enemyReachedGround[i]*/) { //gravity?
+            //cout << "here" << endl;
+
+            if (!enemyReachedGround[i]) {
+                Enemy.FreeFall(i, yVel);
+            } else {
+                if (!enemyChangedDirectionNoGround[i]) {
+                    enemyChangedDirectionNoGround[i] = true;
+                    enemiesArray[i].speed *= -1;
+                }
+
+            }
+        }
+        if (enemyCollidingLeftSide[i] || enemyCollidingRightSide[i]) {
+            enemiesArray[i].speed *= -1;
+        }
+    }
+}
+
+
+
+void MoveEnemies(GLdouble diference) {
+    for(int i=0; i<sizeof(enemiesArray)/sizeof(enemiesArray[0]); i++) {
+        Enemy.MoveEmX(i, enemiesArray[i].speed, diference);
+    }
 }
 
 void CheckPlayerTiro(GLdouble diference) {
@@ -226,9 +362,11 @@ void MoveCamera() {
     glLoadIdentity();
 
     //glTranslatef(camMove/45.9 + 3.427/*offset*/,3.08/*offset*/,0);
-    glTranslatef((camMove/45.9) + 3.427/*offset*/,4/*offset*/,0);
+    //glTranslatef((camMove/45.9) + 3.427/*offset*/,4/*offset*/,0);
+    glTranslatef(-0.1 /*offset*/,1/*offset*/,0);
 
-    gluOrtho2D(-45.9,45.9,-45.9,45.9);
+    //gluOrtho2D(-45.9,45.9,-45.9,45.9);
+    gluOrtho2D(-200,200,-200,200);
     //gluOrtho2D(-100,100,-100,100);
 
     glMatrixMode(GL_MODELVIEW); // Select the projection matrix
@@ -264,53 +402,62 @@ void CheckPlayerCollision() {
         if(previousPlayerBottom > boxTop && currentPlayerBottom <= boxTop && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight){
             Player.ResetJumpDistance();
             contCollisionBottom++;
+            cout << "coliding bottom" << endl;
         }
 
         if(previousPlayerRight < boxLeft && currentPlayerRight >= boxLeft &&  currentPlayerBottom < boxTop && currentPlayerTop > boxBottom){
             contCollisionRight++;
+            cout << "coliding right" << endl;
         }
 
         if(previousPlayerLeft > boxRight && currentPlayerLeft <= boxRight && currentPlayerBottom < boxTop && currentPlayerTop > boxBottom){
             contCollisionLeft++;
+            cout << "coliding left" << endl;
         }
 
         if(previousPlayerTop < boxBottom && currentPlayerTop >= boxBottom && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight){
             contCollisionTop++;
+            cout << "coliding top" << endl;
         }
     }
 
     if(contCollisionBottom > 0)
-        collidingBottom = true;
+        playerCollidingBottom = true;
     else{
-        collidingBottom = false;
+        playerCollidingBottom = false;
         previousPlayerBottom = currentPlayerBottom;
     }
 
     if(contCollisionRight > 0)
-        collidingOnRightSide = true;
+        playerCollidingOnRightSide = true;
+
     else{
-        collidingOnRightSide = false;
+        playerCollidingOnRightSide = false;
         previousPlayerRight = currentPlayerRight;
     }
 
 
     if(contCollisionLeft > 0)
-        collidingOnLeftSide = true;
+        playerCollidingOnLeftSide = true;
     else{
-        collidingOnLeftSide = false;
+        playerCollidingOnLeftSide = false;
         previousPlayerLeft = currentPlayerLeft;
     }
 
 
     if(contCollisionTop > 0)
-        collidingTop = true;
+        playerCollidingTop = true;
     else{
-        collidingTop = false;
+        playerCollidingTop = false;
         previousPlayerTop = currentPlayerTop;
     }
 
-    if(collidingTop){
+    if(playerCollidingTop){
         isJumping = false;
+    }
+
+    if(!playerCollidingBottom && previousPlayerBottom == currentPlayerBottom && !isJumping){ //gravity?
+        Player.FreeFall(yVel);
     }
 }
 
@@ -320,10 +467,10 @@ void CheckKeyPress(GLdouble diference) {
     //Treat keyPress
     if(keyStatus[(int)('a')])
     {
-        if(!collidingOnLeftSide){
+        if(!playerCollidingOnLeftSide){
             camMove += inc * diference;
             Player.MoveEmX(-inc, diference);
-            if(collidingBottom){
+            if(playerCollidingBottom){
                 Player.RodaPernaD1(-inc);
                 Player.RodaPernaE1(-inc);
             }
@@ -331,10 +478,10 @@ void CheckKeyPress(GLdouble diference) {
     }
     if(keyStatus[(int)('d')])
     {
-        if(!collidingOnRightSide) {
+        if(!playerCollidingOnRightSide) {
             camMove -= inc * diference;
             Player.MoveEmX(inc, diference);
-            if(collidingBottom){
+            if(playerCollidingBottom){
                 Player.RodaPernaD1(inc);
                 Player.RodaPernaE1(inc);
             }
@@ -373,7 +520,7 @@ void MyMouse(int button, int state, int x, int y)
         case GLUT_RIGHT_BUTTON:
             if(state == GLUT_DOWN){
                 pressingJumpKey = true;
-                if(collidingBottom){
+                if(playerCollidingBottom){
                     isJumping = true;
                 }
             }
@@ -386,7 +533,7 @@ void MyMouse(int button, int state, int x, int y)
 
         case GLUT_MIDDLE_BUTTON:
             if(state == GLUT_DOWN){
-                if(!collidingBottom)
+                if(!playerCollidingBottom)
                     test = true;
             }
 

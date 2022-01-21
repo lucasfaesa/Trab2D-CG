@@ -93,6 +93,9 @@ void Cenario::GetCenarioFromSvg() {
         float iX = strtof(pAttrX, NULL);
         float iY = strtof(pAttrY, NULL);
 
+        if((int)iWidth == 364){
+            continue;
+        }
 
         Cenario::AddBoxesToArray(cont,iX,-iY,-iHeight,iWidth, child->Attribute("fill")); //invetendo Y e altura para desenho correto
         cont++;

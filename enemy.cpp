@@ -31,11 +31,11 @@ void Enemy::DesenhaRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLf
     glEnd();
 
 }
-void Enemy::DesenhaCabeca(GLfloat x, GLfloat y, GLfloat radius, GLfloat R, GLfloat G, GLfloat B)
+void Enemy::DesenhaCabeca(GLint index, GLfloat x, GLfloat y, GLfloat radius, GLfloat R, GLfloat G, GLfloat B)
 {
     glPushMatrix();
     glTranslatef(x,y,0);
-    if(enemyFacingRight)
+    if(enemyFacingRight[index])
         glScalef(1,1,1);
     else
         glScalef(-1,1,1);
@@ -51,12 +51,12 @@ void Enemy::DesenhaCabeca(GLfloat x, GLfloat y, GLfloat radius, GLfloat R, GLflo
     glPopMatrix();
 }
 
-void Enemy::DesenhaBraco(GLfloat x, GLfloat y, GLfloat theta1)
+void Enemy::DesenhaBraco(GLint index, GLfloat x, GLfloat y, GLfloat theta1)
 {
     glPushMatrix();
     glTranslatef(x,y,0);
     glRotatef(theta1,0,0,1);
-    if(enemyFacingRight)
+    if(enemyFacingRight[index])
         glScalef(1,1,1);
     else
         glScalef(-1,1,1);
@@ -65,13 +65,13 @@ void Enemy::DesenhaBraco(GLfloat x, GLfloat y, GLfloat theta1)
     glPopMatrix();
 }
 
-void Enemy::DesenhaPerna(GLfloat x, GLfloat y, GLfloat pEtheta1, GLfloat pEtheta2, GLfloat pDtheta1, GLfloat pDtheta2)
+void Enemy::DesenhaPerna(GLint index, GLfloat x, GLfloat y, GLfloat pEtheta1, GLfloat pEtheta2, GLfloat pDtheta1, GLfloat pDtheta2)
 {
     glPushMatrix();
     glTranslatef(x,y,0);
 
-    if(enemyFacingRight){ //TODO TROCAR PARA LOOP FOR
-        if(enemyFacingRight)
+    if(enemyFacingRight[index]){ //TODO TROCAR PARA LOOP FOR
+        if(enemyFacingRight[index])
             glScalef(1,1,1);
         else
             glScalef(-1,1,1);
@@ -84,7 +84,7 @@ void Enemy::DesenhaPerna(GLfloat x, GLfloat y, GLfloat pEtheta1, GLfloat pEtheta
 
         glPushMatrix();
         glTranslatef(x,y,0);
-        if(enemyFacingRight)
+        if(enemyFacingRight[index])
             glScalef(1,1,1);
         else
             glScalef(-1,1,1);
@@ -97,7 +97,7 @@ void Enemy::DesenhaPerna(GLfloat x, GLfloat y, GLfloat pEtheta1, GLfloat pEtheta
     }else{
         glPushMatrix();
         glTranslatef(x,y,0);
-        if(enemyFacingRight)
+        if(enemyFacingRight[index])
             glScalef(1,1,1);
         else
             glScalef(-1,1,1);
@@ -108,7 +108,7 @@ void Enemy::DesenhaPerna(GLfloat x, GLfloat y, GLfloat pEtheta1, GLfloat pEtheta
         DesenhaRect(-enemyPernaHeight,enemyPernaWidth,1,1,1,1); //desenhando segunda perna direita*/
         glPopMatrix();
 
-        if(enemyFacingRight)
+        if(enemyFacingRight[index])
             glScalef(1,1,1);
         else
             glScalef(-1,1,1);
@@ -122,50 +122,39 @@ void Enemy::DesenhaPerna(GLfloat x, GLfloat y, GLfloat pEtheta1, GLfloat pEtheta
 
 }
 
-void Enemy::DesenhaCollider() {
-    glPushMatrix();
-    glTranslatef(0,-enemyTroncoHeight,0);
-    DesenhaRect(enemyCabecaRadius * 2 + enemyTroncoHeight + enemyPernaHeight * 2, enemyTroncoWidth, 1, 1, 1, 0);
-    glPopMatrix();
-
-}
-
-void Enemy::DesenhaEnemy(GLfloat x, GLfloat y, GLfloat bTheta, GLfloat pETheta1, GLfloat pETheta2, GLfloat pDTheta1, GLfloat pDTheta2)
+void Enemy::DesenhaEnemy(GLint index ,GLfloat x, GLfloat y, GLfloat bTheta, GLfloat pETheta1, GLfloat pETheta2, GLfloat pDTheta1, GLfloat pDTheta2)
 {
     glLoadIdentity();
     glFlush();
 
     glPushMatrix();
     glTranslatef(x,y,0);
-    if(enemyFacingRight)
+    if(enemyFacingRight[index])
         glScalef(1,1,1);
     else
         glScalef(-1,1,1);
-    DesenhaCollider();
     DesenhaRect(enemyTroncoHeight,enemyTroncoWidth,1,0,0,1); //desenhando base
-    DesenhaCabeca(0, enemyTroncoHeight + enemyCabecaRadius /*offset*/, enemyCabecaRadius, 1, 0, 0);
-    DesenhaBraco(0,enemyTroncoHeight/2,bTheta);
-    DesenhaPerna(0, 0,pETheta1,pETheta2, pDTheta1, pDTheta2);
+    DesenhaCabeca(index, 0, enemyTroncoHeight + enemyCabecaRadius /*offset*/, enemyCabecaRadius, 1, 0, 0);
+    DesenhaBraco(index, 0,enemyTroncoHeight/2, bTheta);
+    DesenhaPerna(index, 0, 0,pETheta1,pETheta2, pDTheta1, pDTheta2);
 
     glPopMatrix();
-
-
-
 }
 
 Tiro* Enemy::Atira() {
 
     float angleSumTheta1 = (bTheta) * M_PI / 180;
 
-    if(enemyFacingRight) {
+        //todo CORRIGIR REMOVER ESSES [0]
+     if(enemyFacingRight[0]) {
         float bulletX = gX - enemyBracoHeight * sin(angleSumTheta1);
         float bulletY = gY + enemyTroncoHeight / 2 + enemyBracoHeight * cos(angleSumTheta1);
-        return new Tiro(bulletX, bulletY, 90 + bTheta, enemyFacingRight);
+        return new Tiro(bulletX, bulletY, 90 + bTheta, enemyFacingRight[0]);
     }
     else{
         float bulletX = gX + enemyBracoHeight * sin(angleSumTheta1) ;
         float bulletY = gY + enemyTroncoHeight/2 + enemyBracoHeight * cos(angleSumTheta1);
-        return new Tiro(bulletX, bulletY, -90 + bTheta, enemyFacingRight);
+        return new Tiro(bulletX, bulletY, -90 + bTheta, enemyFacingRight[0]);
     }
 
 }
@@ -187,11 +176,14 @@ void Enemy::GetEnemiesFromSvg() {
         float iX = strtof(pAttrX, NULL);
         float iY = strtof(pAttrY, NULL);
         float iR = strtof(pAttrR, NULL);
+        std::string color = child->Attribute("fill");
 
+        if(color == "green")
+            continue;
 
-        DesenhaEnemy(iX, -iY - 1.5 /*offset*/, -90, 30, 0, -30, 0);
+        //DesenhaEnemy(contEnemies, iX, -iY - 1.5 /*offset*/, -90, 30, 0, -30, 0);
 
-        Enemy::AddEnemiesToArray(contEnemies, iX, -iY - 1.5, -90, 30, 0, -30, 0);
+        Enemy::AddEnemiesToArray(contEnemies, iX, -iY, -90, 30, 0, -30, 0);
 
         contEnemies++;
     }
@@ -199,11 +191,9 @@ void Enemy::GetEnemiesFromSvg() {
 }
 void Enemy::DesenhaTodos() {
 
-    for(int i =0; i<sizeof(enemiesObj); i++){
-        if(enemiesObj[i].gY == 0) break;
-
+    for(int i =0; i<sizeof(enemiesObj)/sizeof(enemiesObj[0]); i++){
         if(enemiesObj[i].canBeDrawn)
-            DesenhaEnemy(enemiesObj[i].gX,enemiesObj[i].gY,enemiesObj[i].bTheta,enemiesObj[i].pETheta1,enemiesObj[i].pETheta2,enemiesObj[i].pDTheta1,enemiesObj[i].pDTheta2);
+            DesenhaEnemy(i,enemiesObj[i].gX,enemiesObj[i].gY,enemiesObj[i].bTheta,enemiesObj[i].pETheta1,enemiesObj[i].pETheta2,enemiesObj[i].pDTheta1,enemiesObj[i].pDTheta2);
     }
 }
 
@@ -214,6 +204,7 @@ void Enemy::RodaBraco(GLfloat inc)
 
 void Enemy::RodaPernaE1(GLfloat inc)
 {
+    /*
     if(enemyPreviousPE1FacingRight != enemyFacingRight){
         pETheta1 = pETheta1 * -1;
     }
@@ -242,6 +233,7 @@ void Enemy::RodaPernaE1(GLfloat inc)
     }
 
     enemyPreviousPE1FacingRight = enemyFacingRight;
+     */
 }
 
 void Enemy::RodaPernaE2(GLfloat inc)
@@ -250,7 +242,7 @@ void Enemy::RodaPernaE2(GLfloat inc)
 
 void Enemy::RodaPernaD1(GLfloat inc)
 {
-    if(enemyPreviousPD1FacingRight != enemyFacingRight){
+   /* if(enemyPreviousPD1FacingRight != enemyFacingRight){
         pDTheta1 = pDTheta1 * -1;
     }
 
@@ -278,24 +270,23 @@ void Enemy::RodaPernaD1(GLfloat inc)
     }
 
     enemyPreviousPD1FacingRight = enemyFacingRight;
-
+*/
 }
 
 void Enemy::RodaPernaD2(GLfloat inc)
 {
 }
 
-void Enemy::MoveEmX(GLfloat dx, GLfloat timeDifference)
+void Enemy::MoveEmX(int index, GLfloat dx, GLfloat timeDifference)
 {
     if(dx > 0){
-        enemyFacingRight = true;
+        enemyFacingRight[index] = true;
     }
     if(dx < 0){
-        enemyFacingRight = false;
+        enemyFacingRight[index] = false;
     }
-
-    gX += dx * timeDifference;
-
+    enemiesObj[index].gX += dx * timeDifference;
+    //gX += dx * timeDifference;
 }
 
 /*void Enemy::MoveEmY(GLfloat dy, bool &isJumping)
@@ -313,10 +304,9 @@ void Enemy::MoveEmX(GLfloat dx, GLfloat timeDifference)
     previousPosY = gY;
 }*/
 
-/*void Enemy::FreeFall(GLfloat dy)
+void Enemy::FreeFall(int index, GLfloat dy)
 {
     float speed = 25;
-    gY -= dy * speed;
-    previousPosY = gY;
-}*/
+    enemiesObj[index].gY -= dy * speed;
+}
 

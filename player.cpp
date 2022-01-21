@@ -148,14 +148,6 @@ void Player::DesenhaPerna(GLfloat x, GLfloat y, GLfloat pEtheta1, GLfloat pEthet
 
 }
 
-void Player::DesenhaCollider() {
-    glPushMatrix();
-    glTranslatef(0,-troncoHeight,0);
-    DesenhaRect(CabecaRadius * 2 + troncoHeight + pernaHeight * 2, troncoWidth, 1, 1, 1, 0);
-    glPopMatrix();
-
-}
-
 void Player::DesenhaPlayer(GLfloat x, GLfloat y, GLfloat bTheta, GLfloat pETheta1, GLfloat pETheta2, GLfloat pDTheta1, GLfloat pDTheta2)
 {
     glLoadIdentity();
@@ -167,7 +159,6 @@ void Player::DesenhaPlayer(GLfloat x, GLfloat y, GLfloat bTheta, GLfloat pETheta
         glScalef(1,1,1);
     else
         glScalef(-1,1,1);
-    DesenhaCollider();
     DesenhaRect(troncoHeight,troncoWidth,0,1,0.3,1); //desenhando base
     DesenhaCabeca(0, troncoHeight + CabecaRadius /*offset*/, CabecaRadius, 0, 1, 0.3);
     DesenhaBraco(0,troncoHeight/2,bTheta);

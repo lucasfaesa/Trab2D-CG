@@ -3,9 +3,11 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <cstring>
+#include <cstdlib>
 #include "tiro.h"
+#include <time.h>
 
-static bool enemyFacingRight = true;
+static bool enemyFacingRight[7] = {};
 
 class Enemies{
 public:
@@ -18,6 +20,7 @@ public:
     float pDTheta1 = 0;
     float pDTheta2 = 0;
     bool canBeDrawn;
+    float speed = 0;
 };
 
 class Enemy {
@@ -31,14 +34,14 @@ class Enemy {
     GLfloat pDTheta2 = 0;
 
 
+
 private:
     void DesenhaRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B, GLfloat A);
-    void DesenhaCabeca(GLfloat x, GLfloat y, GLfloat radius, GLfloat R,GLfloat G, GLfloat B);
-    void DesenhaPerna(GLfloat x, GLfloat y, GLfloat theta1, GLfloat theta2, GLfloat theta3, GLfloat theta4);
-    void DesenhaBraco(GLfloat x, GLfloat y, GLfloat theta1);
-    void DesenhaCollider();
+    void DesenhaCabeca(GLint index, GLfloat x, GLfloat y, GLfloat radius, GLfloat R,GLfloat G, GLfloat B);
+    void DesenhaPerna(GLint index, GLfloat x, GLfloat y, GLfloat theta1, GLfloat theta2, GLfloat theta3, GLfloat theta4);
+    void DesenhaBraco(GLint index, GLfloat x, GLfloat y, GLfloat theta1);
     void GetEnemiesFromSvg();
-    void DesenhaEnemy(GLfloat x, GLfloat y, GLfloat bTheta, GLfloat pETheta1, GLfloat pETheta2, GLfloat pDTheta1, GLfloat pDTheta2);
+    void DesenhaEnemy(GLint index, GLfloat x, GLfloat y, GLfloat bTheta, GLfloat pETheta1, GLfloat pETheta2, GLfloat pDTheta1, GLfloat pDTheta2);
     void AddEnemiesToArray(int index, GLfloat x, GLfloat y, GLfloat bTheta, GLfloat pETheta1, GLfloat pETheta2, GLfloat pDTheta1, GLfloat pDTheta2){
         enemiesObj[index].gX = x;
         enemiesObj[index].gY = y;
@@ -48,12 +51,27 @@ private:
         enemiesObj[index].pDTheta1 = pDTheta1;
         enemiesObj[index].pDTheta2 = pDTheta2;
         enemiesObj[index].canBeDrawn = true;
+        srand (time(NULL));
 
+        //enemiesObj[index].speed = 0.01;
+
+        int randomNumber = rand() % 3;
+        switch (randomNumber) {
+            case 0:
+                enemiesObj[index].speed = 0.02;
+                break;
+            case 1:
+                enemiesObj[index].speed = 0.01;
+                break;
+            case 2:
+                enemiesObj[index].speed = 0.008;
+                break;
+        }
     }
     void DesenhaTodos();
 
 public:
-    Enemies enemiesObj[50] = {};
+    Enemies enemiesObj[7] = {};
 
     void Desenha(){
         DesenhaTodos();
@@ -61,7 +79,7 @@ public:
     void GetFromSvg(){
         GetEnemiesFromSvg();
     }
-    void GetEnemiesArray(Enemies (&x)[50]){
+    void GetEnemiesArray(Enemies (&x)[7]){
         memcpy(x, enemiesObj, sizeof(x));
     };
 
@@ -71,13 +89,13 @@ public:
     void RodaPernaD1(GLfloat inc);
     void RodaPernaD2(GLfloat inc);
     Tiro* Atira();
-    void MoveEmX(GLfloat dx, GLfloat timeDifference);
+    void MoveEmX(int index, GLfloat dx, GLfloat timeDifference);
     //void MoveEmY(GLfloat dy, bool &isJumping);
-    //void FreeFall (GLfloat dy);
-    /*void GetPos(GLfloat &xOut, GLfloat &yOut){
-        xOut = gX;
-        yOut = gY;
-    };*/
+    void FreeFall (GLint index, GLfloat dy);
+    void GetPos(int index, GLfloat &xOut, GLfloat &yOut){
+        xOut = enemiesObj[index].gX;
+        yOut = enemiesObj[index].gY;
+    };
 
 
 };
