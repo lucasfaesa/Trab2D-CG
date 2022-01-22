@@ -91,6 +91,13 @@ build CMakeFiles/Trabalhocg.dir/enemy.cpp.obj: CXX_COMPILER__Trabalhocg_Debug C$
   OBJECT_DIR = CMakeFiles\Trabalhocg.dir
   OBJECT_FILE_DIR = CMakeFiles\Trabalhocg.dir
 
+build CMakeFiles/Trabalhocg.dir/enemyTiro.cpp.obj: CXX_COMPILER__Trabalhocg_Debug C$:/Users/lucas/Desktop/Trab2D/enemyTiro.cpp || cmake_object_order_depends_target_Trabalhocg
+  DEP_FILE = CMakeFiles\Trabalhocg.dir\enemyTiro.cpp.obj.d
+  FLAGS = -g -std=gnu++14
+  INCLUDES = -IC:/MinGW/freeglut/include
+  OBJECT_DIR = CMakeFiles\Trabalhocg.dir
+  OBJECT_FILE_DIR = CMakeFiles\Trabalhocg.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Trabalhocg
@@ -99,7 +106,7 @@ build CMakeFiles/Trabalhocg.dir/enemy.cpp.obj: CXX_COMPILER__Trabalhocg_Debug C$
 #############################################
 # Link the executable Trabalhocg.exe
 
-build Trabalhocg.exe: CXX_EXECUTABLE_LINKER__Trabalhocg_Debug CMakeFiles/Trabalhocg.dir/main.cpp.obj CMakeFiles/Trabalhocg.dir/player.cpp.obj CMakeFiles/Trabalhocg.dir/tinyxml2.cpp.obj CMakeFiles/Trabalhocg.dir/Cenario.cpp.obj CMakeFiles/Trabalhocg.dir/tiro.cpp.obj CMakeFiles/Trabalhocg.dir/enemy.cpp.obj | C$:/MinGW/lib/libfreeglut.a
+build Trabalhocg.exe: CXX_EXECUTABLE_LINKER__Trabalhocg_Debug CMakeFiles/Trabalhocg.dir/main.cpp.obj CMakeFiles/Trabalhocg.dir/player.cpp.obj CMakeFiles/Trabalhocg.dir/tinyxml2.cpp.obj CMakeFiles/Trabalhocg.dir/Cenario.cpp.obj CMakeFiles/Trabalhocg.dir/tiro.cpp.obj CMakeFiles/Trabalhocg.dir/enemy.cpp.obj CMakeFiles/Trabalhocg.dir/enemyTiro.cpp.obj | C$:/MinGW/lib/libfreeglut.a
   FLAGS = -g
   LINK_LIBRARIES = -lopengl32  -lglu32  C:/MinGW/lib/libfreeglut.a  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\Trabalhocg.dir

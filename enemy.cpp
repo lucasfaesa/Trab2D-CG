@@ -1,5 +1,5 @@
 #include "enemy.h"
-#include "tiro.h"
+#include "enemyTiro.h"
 #include "tinyxml2.h"
 #include <cmath>
 #include <iostream>
@@ -12,12 +12,7 @@ float enemyBracoHeight  = 3;
 float enemyBracoWidth  = 0.5;
 float enemyPernaHeight  = 1.8;
 float enemyPernaWidth  = 0.5;
-bool enemyPreviousPE1FacingRight;
-bool enemyPreviousPD1FacingRight;
-float enemyPreviousPosY;
 
-bool enemyRotatePernaD1Backwards;
-bool enemyRotatePernaE1Backwards;
 int contEnemies = 0;
 
 void Enemy::DesenhaRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B,GLfloat A)
@@ -141,20 +136,19 @@ void Enemy::DesenhaEnemy(GLint index ,GLfloat x, GLfloat y, GLfloat bTheta, GLfl
     glPopMatrix();
 }
 
-Tiro* Enemy::Atira() {
+enemyTiro* Enemy::Atira(int index) {
 
-    float angleSumTheta1 = (bTheta) * M_PI / 180;
+    float angleSumTheta1 = (enemiesObj[index].bTheta) * M_PI / 180;
 
-        //todo CORRIGIR REMOVER ESSES [0]
      if(enemyFacingRight[0]) {
-        float bulletX = gX - enemyBracoHeight * sin(angleSumTheta1);
-        float bulletY = gY + enemyTroncoHeight / 2 + enemyBracoHeight * cos(angleSumTheta1);
-        return new Tiro(bulletX, bulletY, 90 + bTheta, enemyFacingRight[0]);
+        float bulletX = enemiesObj[index].gX - enemyBracoHeight * sin(angleSumTheta1);
+        float bulletY = enemiesObj[index].gY + enemyTroncoHeight / 2 + enemyBracoHeight * cos(angleSumTheta1);
+        return new enemyTiro(bulletX, bulletY, 90 + enemiesObj[index].bTheta, enemyFacingRight[index]);
     }
     else{
-        float bulletX = gX + enemyBracoHeight * sin(angleSumTheta1) ;
-        float bulletY = gY + enemyTroncoHeight/2 + enemyBracoHeight * cos(angleSumTheta1);
-        return new Tiro(bulletX, bulletY, -90 + bTheta, enemyFacingRight[0]);
+        float bulletX = enemiesObj[index].gX + enemyBracoHeight * sin(angleSumTheta1) ;
+        float bulletY = enemiesObj[index].gY + enemyTroncoHeight/2 + enemyBracoHeight * cos(angleSumTheta1);
+        return new enemyTiro(bulletX, bulletY, -90 + enemiesObj[index].bTheta, enemyFacingRight[index]);
     }
 
 }

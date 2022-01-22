@@ -4,7 +4,7 @@
 #include <GL/glu.h>
 #include <cstring>
 #include <cstdlib>
-#include "tiro.h"
+#include "enemyTiro.h"
 #include <time.h>
 
 static bool enemyFacingRight[7] = {};
@@ -33,8 +33,6 @@ class Enemy {
     GLfloat pDTheta1 = 0;
     GLfloat pDTheta2 = 0;
 
-
-
 private:
     void DesenhaRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B, GLfloat A);
     void DesenhaCabeca(GLint index, GLfloat x, GLfloat y, GLfloat radius, GLfloat R,GLfloat G, GLfloat B);
@@ -51,7 +49,7 @@ private:
         enemiesObj[index].pDTheta1 = pDTheta1;
         enemiesObj[index].pDTheta2 = pDTheta2;
         enemiesObj[index].canBeDrawn = true;
-        srand (time(NULL));
+      //  srand (time(NULL));
 
         //enemiesObj[index].speed = 0.01;
 
@@ -88,7 +86,7 @@ public:
     void RodaPernaE2(GLfloat inc);
     void RodaPernaD1(GLfloat inc);
     void RodaPernaD2(GLfloat inc);
-    Tiro* Atira();
+    enemyTiro* Atira(int index);
     void MoveEmX(int index, GLfloat dx, GLfloat timeDifference);
     //void MoveEmY(GLfloat dy, bool &isJumping);
     void FreeFall (GLint index, GLfloat dy);

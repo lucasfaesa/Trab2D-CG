@@ -6,6 +6,7 @@
 #include "tinyxml2.h"
 #include "Cenario.h"
 #include "tiro.h"
+#include "enemyTiro.h"
 #include "enemy.h"
 #include <algorithm>
 #include <cmath>
@@ -63,11 +64,13 @@ float currentEnemyTop = 0;
 
 float yVel = 0.01; //player Y Speed
 
+float enemyTiroTimer = 0;
+float enemyTiroDelay = 1000; //1 segundos
 
 float camMove = 0;
 
 Tiro * tiro = NULL; //Um tiro por vez
-
+enemyTiro * enemyTiroArray[7] = {nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr};
 
 
 void CheckKeyPress(GLdouble diference);
@@ -77,6 +80,8 @@ void CheckPlayerTiro(GLdouble diference);
 void MoveEnemies(GLdouble diference);
 
 void CheckEnemiesCollision();
+
+void CheckEnemyTiro(GLdouble diference);
 
 // Window dimensions
 const GLint Width = 500;
@@ -93,6 +98,12 @@ void renderScene(void)
     Enemy.Desenha();
 
     if (tiro) tiro->Desenha();
+
+    for(int i=0; i<sizeof(enemyTiroArray)/sizeof(enemyTiroArray[0]); i++){
+        if (enemyTiroArray[i])
+            enemyTiroArray[i]->Desenha();
+    }
+
 
     glutSwapBuffers(); // Desenha the new frame of the game.
 }
@@ -132,6 +143,8 @@ void ResetKeyStatus()
 
 void init(int w, int h)
 {
+    srand (time(NULL));
+
     Enemy.GetFromSvg();
     Cenario.GetFromSvg();
 
@@ -186,33 +199,32 @@ void idle(void)
     //Atualiza o tempo do ultimo frame ocorrido
     previousTime = currentTime;
 
+    enemyTiroTimer += timeDiference;
+
+
+    if(enemyTiroTimer > enemyTiroDelay){
+
+        int randomNumber = rand() % 7;
+        cout << enemyTiroTimer <<" " << randomNumber << endl;
+        while(!enemiesArray[randomNumber].canBeDrawn){
+            randomNumber = rand() % 7;
+        }
+
+        if (!enemyTiroArray[randomNumber])
+            enemyTiroArray[randomNumber] = Enemy.Atira(randomNumber);
+
+        enemyTiroTimer = 0;
+    }
 
     CheckKeyPress(timeDiference);
     //CheckPlayerCollision();
     CheckPlayerTiro(timeDiference);
+    CheckEnemyTiro(timeDiference);
     //Enemy.MoveEmX(0,enemiesArray[0].speed, timeDiference);
     //Enemy.MoveEmX(1,enemiesArray[1].speed, timeDiference);
     CheckEnemiesCollision();
     MoveEnemies(timeDiference);
     MoveCamera();
-
-    //Trata o tiro (soh permite um tiro por vez)
-    //Poderia usar uma lista para tratar varios tiros
-    if(tiro){
-        tiro->Move(timeDiference);
-
-        //Trata colisao
-        /*if (alvo.Atingido(tiro)){
-            atingido++;
-            alvo.Recria(rand()%500 - 250, 200);
-        }*/
-
-        if (!tiro->Valido()){
-            delete tiro;
-            tiro = NULL;
-        }
-    }
-
 
     if(isJumping && pressingJumpKey){
         Player.MoveEmY(yVel, isJumping);
@@ -222,9 +234,25 @@ void idle(void)
         Player.MoveEmMenosY(yVel, true);
     }*/
 
-
     glutPostRedisplay();
 
+}
+
+void CheckEnemyTiro(GLdouble diference) {
+
+    /*if (!enemyTiroArray[i])
+        enemyTiroArray[i] = Enemy.Atira(i);*/
+
+    for(int i=0; i<sizeof(enemyTiroArray)/sizeof(enemyTiroArray[0]); i++){
+        if(enemyTiroArray[i]){
+            enemyTiroArray[i]->Move(diference);
+
+            if (!enemyTiroArray[i]->Valido()){
+                delete enemyTiroArray[i];
+                enemyTiroArray[i] = NULL;
+            }
+        }
+    }
 }
 
 void CheckEnemiesCollision() {
@@ -331,8 +359,6 @@ void CheckEnemiesCollision() {
     }
 }
 
-
-
 void MoveEnemies(GLdouble diference) {
     for(int i=0; i<sizeof(enemiesArray)/sizeof(enemiesArray[0]); i++) {
         Enemy.MoveEmX(i, enemiesArray[i].speed, diference);
@@ -341,6 +367,8 @@ void MoveEnemies(GLdouble diference) {
 
 void CheckPlayerTiro(GLdouble diference) {
 
+    //Trata o tiro (soh permite um tiro por vez)
+    //Poderia usar uma lista para tratar varios tiros
     if(tiro){
         tiro->Move(diference);
 

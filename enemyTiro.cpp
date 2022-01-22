@@ -1,11 +1,11 @@
-#include "tiro.h"
-#include "player.h"
+#include "enemyTiro.h"
+#include "enemy.h"
 #include <math.h>
 #include <iostream>
 
 #define DISTANCIA_MAX 50
 
-void Tiro::DesenhaCirc(GLfloat radius, GLfloat R, GLfloat G, GLfloat B)
+void enemyTiro::DesenhaCirc(GLfloat radius, GLfloat R, GLfloat G, GLfloat B)
 {
     glColor3f(R,G,B);
 
@@ -17,7 +17,7 @@ void Tiro::DesenhaCirc(GLfloat radius, GLfloat R, GLfloat G, GLfloat B)
     glEnd();
 }
 
-void Tiro::DesenhaTiro(GLfloat x, GLfloat y)
+void enemyTiro::DesenhaTiro(GLfloat x, GLfloat y)
 {
     glPushMatrix();
 
@@ -26,7 +26,7 @@ void Tiro::DesenhaTiro(GLfloat x, GLfloat y)
     glPopMatrix();
 }
 
-void Tiro::Move(double timeDifference)
+void enemyTiro::Move(double timeDifference)
 {
     gX += gVel * timeDifference * cos(gDirectionAng*M_PI/180);
     if(gFireRightDirection){
@@ -36,7 +36,7 @@ void Tiro::Move(double timeDifference)
     }
 }
 
-bool Tiro::Valido()
+bool enemyTiro::Valido()
 {
     if(abs(gX - gXInit) >= DISTANCIA_MAX || abs(gY - gYInit) >= DISTANCIA_MAX)
         return false;
