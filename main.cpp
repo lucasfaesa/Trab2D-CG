@@ -95,7 +95,11 @@ void renderScene(void)
 
     Cenario.Desenha();
     Player.Desenha();
-    Enemy.Desenha();
+    for(int i=0; i<sizeof(enemiesArray)/sizeof(enemiesArray[0]); i++){
+        if(enemiesArray[i].canBeDrawn)
+            Enemy.Desenha(i, enemiesArray[i]);
+    }
+
 
     if (tiro) tiro->Desenha();
 
@@ -240,9 +244,6 @@ void idle(void)
 
 void CheckEnemyTiro(GLdouble diference) {
 
-    /*if (!enemyTiroArray[i])
-        enemyTiroArray[i] = Enemy.Atira(i);*/
-
     for(int i=0; i<sizeof(enemyTiroArray)/sizeof(enemyTiroArray[0]); i++){
         if(enemyTiroArray[i]){
             enemyTiroArray[i]->Move(diference);
@@ -362,6 +363,8 @@ void CheckEnemiesCollision() {
 void MoveEnemies(GLdouble diference) {
     for(int i=0; i<sizeof(enemiesArray)/sizeof(enemiesArray[0]); i++) {
         Enemy.MoveEmX(i, enemiesArray[i].speed, diference);
+        Enemy.RodaPernaD1(i, enemiesArray[i].speed);
+        Enemy.RodaPernaE1(i, enemiesArray[i].speed);
     }
 }
 
@@ -378,6 +381,12 @@ void CheckPlayerTiro(GLdouble diference) {
             alvo.Recria(rand()%500 - 250, 200);
         }*/
 
+        for(int i =0; i<sizeof(enemiesArray)/sizeof(enemiesArray[0]); i++){
+            if(Enemy.Atingido(i,tiro)){
+                Enemy.SetEnemyVisibility(i,false);
+            }
+        }
+
         if (!tiro->Valido()){
             delete tiro;
             tiro = NULL;
@@ -389,12 +398,12 @@ void MoveCamera() {
     glMatrixMode(GL_PROJECTION); // Select the projection matrix
     glLoadIdentity();
 
-    //glTranslatef(camMove/45.9 + 3.427/*offset*/,3.08/*offset*/,0);
+    glTranslatef(camMove/45.9 + 3.427/*offset*/,3.08/*offset*/,0);
     //glTranslatef((camMove/45.9) + 3.427/*offset*/,4/*offset*/,0);
-    glTranslatef(-0.1 /*offset*/,1/*offset*/,0);
+    //glTranslatef(-0.1 /*offset*/,1/*offset*/,0);
 
-    //gluOrtho2D(-45.9,45.9,-45.9,45.9);
-    gluOrtho2D(-200,200,-200,200);
+    gluOrtho2D(-45.9,45.9,-45.9,45.9);
+    //gluOrtho2D(-200,200,-200,200);
     //gluOrtho2D(-100,100,-100,100);
 
     glMatrixMode(GL_MODELVIEW); // Select the projection matrix

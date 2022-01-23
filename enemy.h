@@ -5,6 +5,7 @@
 #include <cstring>
 #include <cstdlib>
 #include "enemyTiro.h"
+#include "tiro.h"
 #include <time.h>
 
 static bool enemyFacingRight[7] = {};
@@ -71,7 +72,7 @@ private:
 public:
     Enemies enemiesObj[7] = {};
 
-    void Desenha(){
+    void Desenha(int index, Enemies enemy){
         DesenhaTodos();
     };
     void GetFromSvg(){
@@ -82,11 +83,12 @@ public:
     };
 
     void RodaBraco(GLfloat inc);
-    void RodaPernaE1(GLfloat inc);
+    void RodaPernaE1(int index, GLfloat inc);
     void RodaPernaE2(GLfloat inc);
-    void RodaPernaD1(GLfloat inc);
+    void RodaPernaD1(int index, GLfloat inc);
     void RodaPernaD2(GLfloat inc);
     enemyTiro* Atira(int index);
+    bool Atingido(int index, Tiro *tiro);
     void MoveEmX(int index, GLfloat dx, GLfloat timeDifference);
     //void MoveEmY(GLfloat dy, bool &isJumping);
     void FreeFall (GLint index, GLfloat dy);
@@ -94,6 +96,7 @@ public:
         xOut = enemiesObj[index].gX;
         yOut = enemiesObj[index].gY;
     };
+    void SetEnemyVisibility(int index, bool status);
 
 
 };

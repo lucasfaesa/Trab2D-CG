@@ -14,6 +14,8 @@ float enemyPernaHeight  = 1.8;
 float enemyPernaWidth  = 0.5;
 
 int contEnemies = 0;
+bool enemyRotatePernaE1Backwards[7] = {};
+bool enemyRotatePernaD1Backwards[7] = {};
 
 void Enemy::DesenhaRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B,GLfloat A)
 {
@@ -191,80 +193,70 @@ void Enemy::DesenhaTodos() {
     }
 }
 
+void Enemy::SetEnemyVisibility(int index, bool status) {
+    enemiesObj[index].canBeDrawn = status;
+}
+
 void Enemy::RodaBraco(GLfloat inc)
 {
     bTheta =  inc - Enemy::initialBTheta;
 }
 
-void Enemy::RodaPernaE1(GLfloat inc)
+void Enemy::RodaPernaE1(int index, GLfloat inc)
 {
-    /*
-    if(enemyPreviousPE1FacingRight != enemyFacingRight){
-        pETheta1 = pETheta1 * -1;
-    }
-
     float maxRot = 30;
     float minRot = -30;
 
     float speed = 100;
-    if(pETheta1 >= maxRot){
-        if(enemyFacingRight)
-            enemyRotatePernaE1Backwards = false;
+    if(enemiesObj[index].pETheta1 >= maxRot){
+        if(enemyFacingRight[index])
+            enemyRotatePernaE1Backwards[index] = false;
         else
-            enemyRotatePernaE1Backwards = true;
+            enemyRotatePernaE1Backwards[index] = true;
     }
-    if(pETheta1 <= minRot){
-        if(enemyFacingRight)
-            enemyRotatePernaE1Backwards = true;
+    if(enemiesObj[index].pETheta1 <= minRot){
+        if(enemyFacingRight[index])
+            enemyRotatePernaE1Backwards[index] = true;
         else
-            enemyRotatePernaE1Backwards = false;
+            enemyRotatePernaE1Backwards[index] = false;
     }
 
-    if(enemyRotatePernaE1Backwards){
-        pETheta1 += inc * speed;
+    if(enemyRotatePernaE1Backwards[index]){
+        enemiesObj[index].pETheta1 += inc * speed;
     }else{
-        pETheta1 -= inc * speed;
+        enemiesObj[index].pETheta1 -= inc * speed;
     }
 
-    enemyPreviousPE1FacingRight = enemyFacingRight;
-     */
 }
 
 void Enemy::RodaPernaE2(GLfloat inc)
 {
 }
 
-void Enemy::RodaPernaD1(GLfloat inc)
+void Enemy::RodaPernaD1(int index, GLfloat inc)
 {
-   /* if(enemyPreviousPD1FacingRight != enemyFacingRight){
-        pDTheta1 = pDTheta1 * -1;
-    }
-
     float maxRot = 30;
     float minRot = -30;
 
     float speed = 100;
-    if(pDTheta1 >= maxRot){
-        if(enemyFacingRight)
-            enemyRotatePernaD1Backwards = true;
+    if(enemiesObj[index].pDTheta1 >= maxRot){
+        if(enemyFacingRight[index])
+            enemyRotatePernaD1Backwards[index] = true;
         else
-            enemyRotatePernaD1Backwards = false;
+            enemyRotatePernaD1Backwards[index] = false;
     }
-    if(pDTheta1 <= minRot){
-        if(enemyFacingRight)
-            enemyRotatePernaD1Backwards = false;
+    if(enemiesObj[index].pDTheta1 <= minRot){
+        if(enemyFacingRight[index])
+            enemyRotatePernaD1Backwards[index] = false;
         else
-            enemyRotatePernaD1Backwards = true;
+            enemyRotatePernaD1Backwards[index] = true;
     }
 
-    if(enemyRotatePernaD1Backwards){
-        pDTheta1 -= inc * speed;
+    if(enemyRotatePernaD1Backwards[index]){
+        enemiesObj[index].pDTheta1 -= inc * speed;
     }else{
-        pDTheta1 += inc * speed;
+        enemiesObj[index].pDTheta1 += inc * speed;
     }
-
-    enemyPreviousPD1FacingRight = enemyFacingRight;
-*/
 }
 
 void Enemy::RodaPernaD2(GLfloat inc)
@@ -302,5 +294,26 @@ void Enemy::FreeFall(int index, GLfloat dy)
 {
     float speed = 25;
     enemiesObj[index].gY -= dy * speed;
+}
+
+bool Enemy::Atingido(int index, Tiro *tiro) {
+    float tiroXPos = 0;
+    float tiroYPos = 0;
+    float tiroRadius = 0.5;
+
+    tiro->GetPos(tiroXPos,tiroYPos);
+
+    float enemySizeY = (enemyPernaHeight * 2) + (enemyCabecaRadius * 2) + enemyTroncoHeight;
+
+    bool collisionX = enemiesObj[index].gX + enemyTroncoWidth/2 >= tiroXPos &&
+                        tiroXPos + (tiroRadius * 2) >= enemiesObj[index].gX;
+                        //base do inimigo
+    bool collisionY = (enemiesObj[index].gY - enemyPernaHeight*2) + enemySizeY >= tiroYPos &&
+                      tiroYPos + (tiroRadius * 2) >= enemiesObj[index].gY;
+
+    if(collisionX && collisionY){
+        std::cout << "Colisao" << std::endl;
+    }
+    return collisionX && collisionY;
 }
 
