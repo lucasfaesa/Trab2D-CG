@@ -12,8 +12,8 @@
 #include <cmath>
 
 #define INC_KEY 1
-//#define INC_KEYIDLE 0.02 //player X Speed
-#define INC_KEYIDLE 0.16 //player X Speed
+#define INC_KEYIDLE 0.02 //player X Speed
+//#define INC_KEYIDLE 0.16 //player X Speed
 
 //Key status
 int keyStatus[256];
@@ -69,6 +69,10 @@ float enemyTiroDelay = 1000; //1 segundos
 
 float camMove = 0;
 
+bool canShowText;
+bool gameWon;
+bool drawPlayer = true;
+
 Tiro * tiro = NULL; //Um tiro por vez
 enemyTiro * enemyTiroArray[7] = {nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr};
 
@@ -87,19 +91,50 @@ void CheckEnemyTiro(GLdouble diference);
 const GLint Width = 500;
 const GLint Height = 500;
 
+static char str[1000];
+void * font = GLUT_BITMAP_9_BY_15;
+void ExibirTexto()
+{
+    if(!canShowText) return;
+    float x;
+    float y;
+    Player.GetPos(x,y);
+
+    glColor3f(1.0, 1.0, 1.0);
+    //Cria a string a ser impressa
+    char *tmpStr;
+    if(gameWon){
+        sprintf(str, "Parabens, voce venceu! Aperte 'R' para reiniciar");
+    }else{
+        sprintf(str, "Tente novamente! Aperte 'R' para reiniciar");
+    }
+
+    //Define a posicao onde vai comecar a imprimir
+    glRasterPos2f(x - 35, y + 20);
+    //Imprime um caractere por vez
+    tmpStr = str;
+    while( *tmpStr ){
+        glutBitmapCharacter(font, *tmpStr);
+        tmpStr++;
+    }
+}
+
 void renderScene(void)
 {
     // Clear the screen.
     glClear(GL_COLOR_BUFFER_BIT);
 
-
     Cenario.Desenha();
-    Player.Desenha();
+
+    if(drawPlayer)
+        Player.Desenha();
+
     for(int i=0; i<sizeof(enemiesArray)/sizeof(enemiesArray[0]); i++){
         if(enemiesArray[i].canBeDrawn)
             Enemy.Desenha(i, enemiesArray[i]);
     }
 
+    ExibirTexto();
 
     if (tiro) tiro->Desenha();
 
@@ -209,9 +244,10 @@ void idle(void)
     if(enemyTiroTimer > enemyTiroDelay){
 
         int randomNumber = rand() % 7;
-        cout << enemyTiroTimer <<" " << randomNumber << endl;
+
         while(!enemiesArray[randomNumber].canBeDrawn){
             randomNumber = rand() % 7;
+            cout << randomNumber << endl;
         }
 
         if (!enemyTiroArray[randomNumber])
@@ -221,7 +257,7 @@ void idle(void)
     }
 
     CheckKeyPress(timeDiference);
-    //CheckPlayerCollision();
+    CheckPlayerCollision();
     CheckPlayerTiro(timeDiference);
     CheckEnemyTiro(timeDiference);
     //Enemy.MoveEmX(0,enemiesArray[0].speed, timeDiference);
@@ -247,6 +283,14 @@ void CheckEnemyTiro(GLdouble diference) {
     for(int i=0; i<sizeof(enemyTiroArray)/sizeof(enemyTiroArray[0]); i++){
         if(enemyTiroArray[i]){
             enemyTiroArray[i]->Move(diference);
+
+
+            if(Player.Atingido(i,enemyTiroArray[i])){
+                drawPlayer = false;
+                gameWon = false;
+                canShowText = true;
+            }
+
 
             if (!enemyTiroArray[i]->Valido()){
                 delete enemyTiroArray[i];
@@ -381,9 +425,13 @@ void CheckPlayerTiro(GLdouble diference) {
             alvo.Recria(rand()%500 - 250, 200);
         }*/
 
+
         for(int i =0; i<sizeof(enemiesArray)/sizeof(enemiesArray[0]); i++){
             if(Enemy.Atingido(i,tiro)){
                 Enemy.SetEnemyVisibility(i,false);
+                enemiesArray[i].canBeDrawn = false;
+                gameWon = true;
+                canShowText = true;
             }
         }
 
@@ -439,22 +487,18 @@ void CheckPlayerCollision() {
         if(previousPlayerBottom > boxTop && currentPlayerBottom <= boxTop && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight){
             Player.ResetJumpDistance();
             contCollisionBottom++;
-            cout << "coliding bottom" << endl;
         }
 
         if(previousPlayerRight < boxLeft && currentPlayerRight >= boxLeft &&  currentPlayerBottom < boxTop && currentPlayerTop > boxBottom){
             contCollisionRight++;
-            cout << "coliding right" << endl;
         }
 
         if(previousPlayerLeft > boxRight && currentPlayerLeft <= boxRight && currentPlayerBottom < boxTop && currentPlayerTop > boxBottom){
             contCollisionLeft++;
-            cout << "coliding left" << endl;
         }
 
         if(previousPlayerTop < boxBottom && currentPlayerTop >= boxBottom && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight){
             contCollisionTop++;
-            cout << "coliding top" << endl;
         }
     }
 

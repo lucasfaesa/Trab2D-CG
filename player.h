@@ -3,6 +3,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "tiro.h"
+#include "enemyTiro.h"
 
 static bool facingRight = true;
 
@@ -47,6 +48,7 @@ public:
     void RodaPernaD1(GLfloat inc);
     void RodaPernaD2(GLfloat inc);
     Tiro* Atira();
+    bool Atingido(int index, enemyTiro *enemyTiro);
     void MoveEmX(GLfloat dx, GLfloat timeDifference);
     void MoveEmY(GLfloat dy, bool &isJumping);
     void FreeFall (GLfloat dy);

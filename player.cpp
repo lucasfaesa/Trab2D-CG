@@ -411,6 +411,25 @@ void Player::RodaPernaD2(GLfloat inc)
     previousPD2FacingRight = facingRight;
 }
 
+bool Player::Atingido(int index, enemyTiro *enemyTiro) {
+    float tiroXPos = 0;
+    float tiroYPos = 0;
+    float tiroRadius = 0.5;
+
+    enemyTiro->GetPos(tiroXPos,tiroYPos);
+
+    float playerSizeY = (pernaHeight * 2) + (CabecaRadius * 2) + troncoHeight;
+
+    bool collisionX = gX + troncoWidth/2 >= tiroXPos && tiroXPos + (tiroRadius * 2) >= gX;
+                            //base do player
+    bool collisionY = (gY - pernaHeight*2) + playerSizeY >= tiroYPos && tiroYPos + (tiroRadius * 2) >= gY;
+
+    if(collisionX && collisionY){
+        std::cout << "tiro no player" << std::endl;
+    }
+    return collisionX && collisionY;
+}
+
 void Player::MoveEmX(GLfloat dx, GLfloat timeDifference)
 {
     if(dx > 0){
