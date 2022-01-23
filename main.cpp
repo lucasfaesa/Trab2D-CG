@@ -72,6 +72,8 @@ float camMove = 0;
 bool canShowText;
 bool gameWon;
 bool drawPlayer = true;
+bool canEnemiesMove = true;
+bool canEnemiesShoot = true;
 
 Tiro * tiro = NULL; //Um tiro por vez
 enemyTiro * enemyTiroArray[7] = {nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr};
@@ -138,11 +140,12 @@ void renderScene(void)
 
     if (tiro) tiro->Desenha();
 
-    for(int i=0; i<sizeof(enemyTiroArray)/sizeof(enemyTiroArray[0]); i++){
-        if (enemyTiroArray[i])
-            enemyTiroArray[i]->Desenha();
+    if(canEnemiesShoot){
+        for(int i=0; i<sizeof(enemyTiroArray)/sizeof(enemyTiroArray[0]); i++){
+            if (enemyTiroArray[i])
+                enemyTiroArray[i]->Desenha();
+        }
     }
-
 
     glutSwapBuffers(); // Desenha the new frame of the game.
 }
@@ -158,6 +161,14 @@ void keyPress(unsigned char key, int x, int y)
         case 'd':
         case 'D':
             keyStatus[(int)('d')] = 1; //Using keyStatus trick
+            break;
+        case 't':
+        case 'T':
+            canEnemiesMove = !canEnemiesMove;
+            break;
+        case 'y':
+        case 'Y':
+            canEnemiesShoot = !canEnemiesShoot;
             break;
 
         case 27 :
@@ -405,6 +416,9 @@ void CheckEnemiesCollision() {
 }
 
 void MoveEnemies(GLdouble diference) {
+
+    if(!canEnemiesMove) return;
+
     for(int i=0; i<sizeof(enemiesArray)/sizeof(enemiesArray[0]); i++) {
         Enemy.MoveEmX(i, enemiesArray[i].speed, diference);
         Enemy.RodaPernaD1(i, enemiesArray[i].speed);
