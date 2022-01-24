@@ -53,7 +53,7 @@ public:
     void MoveEmY(GLfloat dy, bool &isJumping);
     void FreeFall (GLfloat dy);
     void ResetJumpDistance();
-    void SetPlayerY(GLfloat yPos);
+    void ResetPlayerPos();
     void MoveEmMenosY(GLfloat dy, bool jumping);
     void GetPos(GLfloat &xOut, GLfloat &yOut){
         xOut = gX;

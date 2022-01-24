@@ -57,13 +57,13 @@ private:
         int randomNumber = rand() % 3;
         switch (randomNumber) {
             case 0:
-                enemiesObj[index].speed = 0.02;
-                break;
-            case 1:
                 enemiesObj[index].speed = 0.01;
                 break;
-            case 2:
+            case 1:
                 enemiesObj[index].speed = 0.008;
+                break;
+            case 2:
+                enemiesObj[index].speed = 0.006;
                 break;
         }
     }

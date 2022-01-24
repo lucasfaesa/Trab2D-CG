@@ -74,6 +74,9 @@ bool gameWon;
 bool drawPlayer = true;
 bool canEnemiesMove = true;
 bool canEnemiesShoot = true;
+bool canPlayerShoot = true;
+bool canPlayerMove = true;
+bool canUseGravity = true;
 
 Tiro * tiro = NULL; //Um tiro por vez
 enemyTiro * enemyTiroArray[7] = {nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr};
@@ -84,10 +87,10 @@ void CheckPlayerCollision();
 void MoveCamera();
 void CheckPlayerTiro(GLdouble diference);
 void MoveEnemies(GLdouble diference);
-
 void CheckEnemiesCollision();
-
 void CheckEnemyTiro(GLdouble diference);
+void CheckPlayerGameWon();
+void ResetGame();
 
 // Window dimensions
 const GLint Width = 500;
@@ -107,8 +110,17 @@ void ExibirTexto()
     char *tmpStr;
     if(gameWon){
         sprintf(str, "Parabens, voce venceu! Aperte 'R' para reiniciar");
+        canPlayerShoot = false;
+        canPlayerMove = false;
+        canEnemiesShoot = false;
+        canEnemiesMove = false;
     }else{
         sprintf(str, "Tente novamente! Aperte 'R' para reiniciar");
+        canPlayerShoot = false;
+        canPlayerMove = false;
+        canEnemiesShoot = false;
+        canEnemiesMove = false;
+        drawPlayer = false;
     }
 
     //Define a posicao onde vai comecar a imprimir
@@ -170,6 +182,11 @@ void keyPress(unsigned char key, int x, int y)
         case 'Y':
             canEnemiesShoot = !canEnemiesShoot;
             break;
+        case 'r':
+        case 'R':
+            ResetGame();
+            break;
+
 
         case 27 :
             exit(0);
@@ -251,7 +268,6 @@ void idle(void)
 
     enemyTiroTimer += timeDiference;
 
-
     if(enemyTiroTimer > enemyTiroDelay){
 
         int randomNumber = rand() % 7;
@@ -275,6 +291,7 @@ void idle(void)
     //Enemy.MoveEmX(1,enemiesArray[1].speed, timeDiference);
     CheckEnemiesCollision();
     MoveEnemies(timeDiference);
+    CheckPlayerGameWon();
     MoveCamera();
 
     if(isJumping && pressingJumpKey){
@@ -289,6 +306,37 @@ void idle(void)
 
 }
 
+void ResetGame() {
+    canEnemiesMove = true;
+    canEnemiesShoot = true;
+    canPlayerMove = true;
+    canPlayerShoot = true;
+
+    for(int i =0; i<sizeof(enemiesArray)/sizeof(enemiesArray[0]); i++){
+        Enemy.SetEnemyVisibility(i,true);
+        enemiesArray[i].canBeDrawn = true;
+    }
+    camMove = 0;
+    Player.ResetPlayerPos();
+    canShowText = false;
+    playerCollidingOnLeftSide = false;
+    playerCollidingOnRightSide = false;
+    drawPlayer = true;
+    canUseGravity = true;
+}
+
+void CheckPlayerGameWon() {
+    float x;
+    float y;
+    Player.GetPos(x,y);
+
+    if(x >= 190 && y<= -170 && !gameWon){
+        gameWon = true;
+        canShowText = true;
+    }
+
+}
+
 void CheckEnemyTiro(GLdouble diference) {
 
     for(int i=0; i<sizeof(enemyTiroArray)/sizeof(enemyTiroArray[0]); i++){
@@ -297,7 +345,6 @@ void CheckEnemyTiro(GLdouble diference) {
 
 
             if(Player.Atingido(i,enemyTiroArray[i])){
-                drawPlayer = false;
                 gameWon = false;
                 canShowText = true;
             }
@@ -347,12 +394,12 @@ void CheckEnemiesCollision() {
                 contCollisionBottom++;
             }
 
-            if (previousEnemyRight[i] < boxLeft && currentEnemyRight >= boxLeft && currentEnemyBottom + 0.25 < boxTop &&
+            if (previousEnemyRight[i] < boxLeft && currentEnemyRight >= boxLeft && currentEnemyBottom + 0.3 < boxTop &&
                 currentEnemyTop > boxBottom) {
                 contCollisionRight++;
             }
 
-            if (previousEnemyLeft[i] > boxRight && currentEnemyLeft <= boxRight && currentEnemyBottom + 0.25 < boxTop &&
+            if (previousEnemyLeft[i] > boxRight && currentEnemyLeft <= boxRight && currentEnemyBottom + 0.3 < boxTop &&
                 currentEnemyTop > boxBottom) {
                 contCollisionLeft++;
 
@@ -428,24 +475,13 @@ void MoveEnemies(GLdouble diference) {
 
 void CheckPlayerTiro(GLdouble diference) {
 
-    //Trata o tiro (soh permite um tiro por vez)
-    //Poderia usar uma lista para tratar varios tiros
     if(tiro){
         tiro->Move(diference);
-
-        //Trata colisao
-        /*if (alvo.Atingido(tiro)){
-            atingido++;
-            alvo.Recria(rand()%500 - 250, 200);
-        }*/
-
 
         for(int i =0; i<sizeof(enemiesArray)/sizeof(enemiesArray[0]); i++){
             if(Enemy.Atingido(i,tiro)){
                 Enemy.SetEnemyVisibility(i,false);
                 enemiesArray[i].canBeDrawn = false;
-                gameWon = true;
-                canShowText = true;
             }
         }
 
@@ -552,7 +588,8 @@ void CheckPlayerCollision() {
     }
 
     if(!playerCollidingBottom && previousPlayerBottom == currentPlayerBottom && !isJumping){ //gravity?
-        Player.FreeFall(yVel);
+        if(canUseGravity)
+            Player.FreeFall(yVel);
     }
 }
 
@@ -562,6 +599,8 @@ void CheckKeyPress(GLdouble diference) {
     //Treat keyPress
     if(keyStatus[(int)('a')])
     {
+        if(!canPlayerMove) return;
+
         if(!playerCollidingOnLeftSide){
             camMove += inc * diference;
             Player.MoveEmX(-inc, diference);
@@ -573,6 +612,8 @@ void CheckKeyPress(GLdouble diference) {
     }
     if(keyStatus[(int)('d')])
     {
+        if(!canPlayerMove) return;
+
         if(!playerCollidingOnRightSide) {
             camMove -= inc * diference;
             Player.MoveEmX(inc, diference);
@@ -607,6 +648,7 @@ void MyMouse(int button, int state, int x, int y)
 
             if(state == GLUT_UP)
             {
+                if(!canPlayerShoot) return;
                 if (!tiro)
                     tiro = Player.Atira();
             }
@@ -614,6 +656,7 @@ void MyMouse(int button, int state, int x, int y)
 
         case GLUT_RIGHT_BUTTON:
             if(state == GLUT_DOWN){
+                if(!canPlayerMove) return;
                 pressingJumpKey = true;
                 if(playerCollidingBottom){
                     isJumping = true;
@@ -621,6 +664,7 @@ void MyMouse(int button, int state, int x, int y)
             }
 
             if(state == GLUT_UP){
+                if(!canPlayerMove) return;
                 pressingJumpKey = false;
                 isJumping = false;
             }

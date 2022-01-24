@@ -443,6 +443,11 @@ void Player::MoveEmX(GLfloat dx, GLfloat timeDifference)
 
 }
 
+void Player::ResetPlayerPos() {
+    gX = -157;
+    gY = -180;
+}
+
 void Player::MoveEmY(GLfloat dy, bool &isJumping)
 {
     float speed = 25;
@@ -462,11 +467,6 @@ void Player::FreeFall(GLfloat dy)
     float speed = 25;
     gY -= dy * speed;
     previousPosY = gY;
-}
-
-void Player::SetPlayerY(GLfloat yPos){
-
-    gY = yPos + 3.8000;
 }
 
 void Player::ResetJumpDistance(){
