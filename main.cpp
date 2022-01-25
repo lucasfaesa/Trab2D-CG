@@ -92,6 +92,8 @@ void CheckEnemyTiro(GLdouble diference);
 void CheckPlayerGameWon();
 void ResetGame();
 
+void RandomEnemyShoot(GLdouble diference);
+
 // Window dimensions
 const GLint Width = 500;
 const GLint Height = 500;
@@ -266,22 +268,7 @@ void idle(void)
     //Atualiza o tempo do ultimo frame ocorrido
     previousTime = currentTime;
 
-    enemyTiroTimer += timeDiference;
-
-    if(enemyTiroTimer > enemyTiroDelay){
-
-        int randomNumber = rand() % 7;
-
-        while(!enemiesArray[randomNumber].canBeDrawn){
-            randomNumber = rand() % 7;
-            cout << randomNumber << endl;
-        }
-
-        if (!enemyTiroArray[randomNumber])
-            enemyTiroArray[randomNumber] = Enemy.Atira(randomNumber);
-
-        enemyTiroTimer = 0;
-    }
+    RandomEnemyShoot(timeDiference);
 
     CheckKeyPress(timeDiference);
     CheckPlayerCollision();
@@ -304,6 +291,33 @@ void idle(void)
 
     glutPostRedisplay();
 
+}
+
+void RandomEnemyShoot(GLdouble diference) {
+
+    enemyTiroTimer += diference;
+
+    if(enemyTiroTimer > enemyTiroDelay){
+
+        int randomNumber = rand() % 7;
+        while(!enemiesArray[randomNumber].canBeDrawn){
+            randomNumber = rand() % 7;
+            cout << randomNumber << endl;
+        }
+
+        if (!enemyTiroArray[randomNumber])
+            enemyTiroArray[randomNumber] = Enemy.Atira(randomNumber);
+
+        enemyTiroTimer = 0;
+    }
+
+    //braco do inimigo sempre apontar pro player
+    float x;
+    float y;
+    Player.GetPos(x,y);
+    for(int i =0; i<sizeof(enemiesArray)/sizeof(enemiesArray[0]); i++){
+        Enemy.RodaBraco(i,x,y);
+    }
 }
 
 void ResetGame() {
@@ -338,6 +352,8 @@ void CheckPlayerGameWon() {
 }
 
 void CheckEnemyTiro(GLdouble diference) {
+
+    if(!canEnemiesShoot) return;
 
     for(int i=0; i<sizeof(enemyTiroArray)/sizeof(enemyTiroArray[0]); i++){
         if(enemyTiroArray[i]){

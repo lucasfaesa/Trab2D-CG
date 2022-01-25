@@ -12,7 +12,7 @@ float enemyBracoHeight  = 3;
 float enemyBracoWidth  = 0.5;
 float enemyPernaHeight  = 1.8;
 float enemyPernaWidth  = 0.5;
-
+float testzz;
 int contEnemies = 0;
 bool enemyRotatePernaE1Backwards[7] = {};
 bool enemyRotatePernaD1Backwards[7] = {};
@@ -53,10 +53,10 @@ void Enemy::DesenhaBraco(GLint index, GLfloat x, GLfloat y, GLfloat theta1)
     glPushMatrix();
     glTranslatef(x,y,0);
     glRotatef(theta1,0,0,1);
-    if(enemyFacingRight[index])
+    /*if(enemyFacingRight[index])
         glScalef(1,1,1);
     else
-        glScalef(-1,1,1);
+        glScalef(-1,1,1);*/
 
     DesenhaRect(enemyBracoHeight,enemyBracoWidth,1,1,0,1);
     glPopMatrix();
@@ -126,10 +126,10 @@ void Enemy::DesenhaEnemy(GLint index ,GLfloat x, GLfloat y, GLfloat bTheta, GLfl
 
     glPushMatrix();
     glTranslatef(x,y,0);
-    if(enemyFacingRight[index])
+    /*if(enemyFacingRight[index])
         glScalef(1,1,1);
     else
-        glScalef(-1,1,1);
+        glScalef(-1,1,1);*/
     DesenhaRect(enemyTroncoHeight,enemyTroncoWidth,1,0,0,1); //desenhando base
     DesenhaCabeca(index, 0, enemyTroncoHeight + enemyCabecaRadius /*offset*/, enemyCabecaRadius, 1, 0, 0);
     DesenhaBraco(index, 0,enemyTroncoHeight/2, bTheta);
@@ -142,16 +142,16 @@ enemyTiro* Enemy::Atira(int index) {
 
     float angleSumTheta1 = (enemiesObj[index].bTheta) * M_PI / 180;
 
-     if(enemyFacingRight[0]) {
+     //if(enemyFacingRight[0]) {
         float bulletX = enemiesObj[index].gX - enemyBracoHeight * sin(angleSumTheta1);
         float bulletY = enemiesObj[index].gY + enemyTroncoHeight / 2 + enemyBracoHeight * cos(angleSumTheta1);
         return new enemyTiro(bulletX, bulletY, 90 + enemiesObj[index].bTheta, enemyFacingRight[index]);
-    }
+    /*}
     else{
         float bulletX = enemiesObj[index].gX + enemyBracoHeight * sin(angleSumTheta1) ;
         float bulletY = enemiesObj[index].gY + enemyTroncoHeight/2 + enemyBracoHeight * cos(angleSumTheta1);
         return new enemyTiro(bulletX, bulletY, -90 + enemiesObj[index].bTheta, enemyFacingRight[index]);
-    }
+    }*/
 
 }
 
@@ -197,9 +197,32 @@ void Enemy::SetEnemyVisibility(int index, bool status) {
     enemiesObj[index].canBeDrawn = status;
 }
 
-void Enemy::RodaBraco(GLfloat inc)
+void Enemy::RodaBraco(int index, GLfloat playerX, GLfloat playerY)
 {
-    bTheta =  inc - Enemy::initialBTheta;
+    double dx = playerX - enemiesObj[index].gX;
+    double dy = playerY - enemiesObj[index].gY;
+    double ang = atan2(dy, dx) * (180 / M_PI);
+    //bTheta =  inc - Enemy::initialBTheta;
+    float armRot = ang;
+    //float armRot = testzz + 90;
+    if(index == 0)
+        std::cout << armRot << std::endl;
+    if(enemyFacingRight[index]){
+        if(armRot > 45)
+            armRot = 45;
+        if(armRot < -45)
+            armRot = -45;
+        enemiesObj[index].bTheta = armRot - 90;
+    }else{
+        if(armRot < 135 && armRot > 0)
+            armRot = 135;
+        if(armRot > -135 && armRot < 0)
+            armRot = -135;
+        enemiesObj[index].bTheta = armRot - 90;
+    }
+
+
+    //bTheta =  ang;
 }
 
 void Enemy::RodaPernaE1(int index, GLfloat inc)

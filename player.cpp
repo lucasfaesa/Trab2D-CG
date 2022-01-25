@@ -453,13 +453,13 @@ void Player::MoveEmY(GLfloat dy, bool &isJumping)
     float speed = 25;
     maxJumpHeight = ((CabecaRadius * 2 + troncoHeight + pernaHeight * 2) * 3);
 
-    if(fabs(jumpUpDistanceTraveled) <= maxJumpHeight){
+    //if(fabs(jumpUpDistanceTraveled) <= maxJumpHeight){
         gY += dy * speed;
         jumpUpDistanceTraveled += previousPosY - gY;
         isJumping = true;
-    }else{
+    //}else{
         isJumping = false;
-    }
+    //}
     previousPosY = gY;
 }
 void Player::FreeFall(GLfloat dy)

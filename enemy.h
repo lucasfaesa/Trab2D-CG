@@ -14,7 +14,6 @@ class Enemies{
 public:
     float gX;
     float gY;
-    float initialBTheta = 0;
     float bTheta = 0;
     float pETheta1 = 0;
     float pETheta2 = 0;
@@ -27,7 +26,6 @@ public:
 class Enemy {
     GLfloat gX;
     GLfloat gY;
-    GLfloat initialBTheta = 0;
     GLfloat bTheta = 0;
     GLfloat pETheta1 = 0;
     GLfloat pETheta2 = 0;
@@ -82,7 +80,7 @@ public:
         memcpy(x, enemiesObj, sizeof(x));
     };
 
-    void RodaBraco(GLfloat inc);
+    void RodaBraco(int index, GLfloat playerX, GLfloat playerY);
     void RodaPernaE1(int index, GLfloat inc);
     void RodaPernaE2(GLfloat inc);
     void RodaPernaD1(int index, GLfloat inc);

@@ -32,7 +32,8 @@ void enemyTiro::Move(double timeDifference)
     if(gFireRightDirection){
         gY += gVel * timeDifference * sin(gDirectionAng*M_PI/180);
     }else{
-        gY -= gVel * timeDifference * sin(gDirectionAng*M_PI/180);
+        //gY -= gVel * timeDifference * sin(gDirectionAng*M_PI/180);
+        gY += gVel * timeDifference * sin(gDirectionAng*M_PI/180);
     }
 }
 
