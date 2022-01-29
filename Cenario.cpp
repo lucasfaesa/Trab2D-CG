@@ -77,7 +77,7 @@ void Cenario::DesenhaCenario() {
 
 void Cenario::GetCenarioFromSvg() {
     tinyxml2::XMLDocument doc;
-    doc.LoadFile("C:/Users/lucas/Desktop/Trab2D/arena_teste.svg"); //TODO modificar para input externo via linha de comando futuramente
+    doc.LoadFile(imagePath);
 
     tinyxml2::XMLElement *levelElement = doc.FirstChildElement("svg");
     for (tinyxml2::XMLElement *child = levelElement->FirstChildElement("rect");
@@ -93,9 +93,9 @@ void Cenario::GetCenarioFromSvg() {
         float iX = strtof(pAttrX, NULL);
         float iY = strtof(pAttrY, NULL);
 
-        if((int)iWidth == 364){
+        /*if((int)iWidth == 364){
             continue;
-        }
+        }*/
 
         Cenario::AddBoxesToArray(cont,iX,-iY,-iHeight,iWidth, child->Attribute("fill")); //invetendo Y e altura para desenho correto
         cont++;

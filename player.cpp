@@ -450,21 +450,21 @@ void Player::ResetPlayerPos() {
 
 void Player::MoveEmY(GLfloat dy, bool &isJumping)
 {
-    float speed = 25;
+    float speed = 60;
     maxJumpHeight = ((CabecaRadius * 2 + troncoHeight + pernaHeight * 2) * 3);
 
-    //if(fabs(jumpUpDistanceTraveled) <= maxJumpHeight){
+    if(fabs(jumpUpDistanceTraveled) <= maxJumpHeight){
         gY += dy * speed;
         jumpUpDistanceTraveled += previousPosY - gY;
         isJumping = true;
-    //}else{
+    }else{
         isJumping = false;
-    //}
+    }
     previousPosY = gY;
 }
 void Player::FreeFall(GLfloat dy)
 {
-    float speed = 25;
+    float speed = 60;
     gY -= dy * speed;
     previousPosY = gY;
 }

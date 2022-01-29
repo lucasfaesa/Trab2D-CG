@@ -33,7 +33,15 @@ private:
     }
 public:
     Boxes boxesObj[50] = {};
+    const char *imagePath = "";
 
+    void SetImagePath(const char* path){
+        imagePath = path;
+    }
+
+    const char* ok(){
+        return imagePath;
+    }
     void Desenha(){
         DesenhaCenario();
     };
@@ -43,7 +51,6 @@ public:
     }
 
     void GetBoxesArray(Boxes (&x)[50]){
-
         memcpy(x, boxesObj, sizeof(x));
     };
 };

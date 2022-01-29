@@ -205,8 +205,7 @@ void Enemy::RodaBraco(int index, GLfloat playerX, GLfloat playerY)
     //bTheta =  inc - Enemy::initialBTheta;
     float armRot = ang;
     //float armRot = testzz + 90;
-    if(index == 0)
-        std::cout << armRot << std::endl;
+
     if(enemyFacingRight[index]){
         if(armRot > 45)
             armRot = 45;

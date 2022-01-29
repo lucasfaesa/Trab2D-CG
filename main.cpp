@@ -302,7 +302,6 @@ void RandomEnemyShoot(GLdouble diference) {
         int randomNumber = rand() % 7;
         while(!enemiesArray[randomNumber].canBeDrawn){
             randomNumber = rand() % 7;
-            cout << randomNumber << endl;
         }
 
         if (!enemyTiroArray[randomNumber])
@@ -337,6 +336,20 @@ void ResetGame() {
     playerCollidingOnRightSide = false;
     drawPlayer = true;
     canUseGravity = true;
+
+    float playerPosX;
+    float playerPosY;
+    Player.GetPos(playerPosX,playerPosY);
+
+    currentPlayerBottom = playerPosY - 3.6; //perna height x 2
+    currentPlayerRight = playerPosX + 2 / 2; //metade da largura do tronco
+    currentPlayerLeft = playerPosX - 2 / 2; //metade da largura do tronco
+    currentPlayerTop = playerPosY + 5.6;
+
+    previousPlayerLeft = currentPlayerLeft;
+    previousPlayerRight = currentPlayerRight;
+    previousPlayerTop = currentPlayerTop;
+    previousPlayerBottom = currentPlayerBottom;
 }
 
 void CheckPlayerGameWon() {
@@ -395,6 +408,10 @@ void CheckEnemiesCollision() {
 
         for (Boxes box: boxesArray) {
             if (box.height == 0) break;
+
+            if((int)box.width == 364 && (int)box.height == -91){
+                continue;
+            }
 
             float boxLeft = box.xPos;
             float boxRight = box.xPos + box.width;
@@ -561,6 +578,44 @@ void CheckPlayerCollision() {
 
         if(previousPlayerLeft > boxRight && currentPlayerLeft <= boxRight && currentPlayerBottom < boxTop && currentPlayerTop > boxBottom){
             contCollisionLeft++;
+            cout << "colliding left" << endl;
+        }
+
+        if(previousPlayerTop < boxBottom && currentPlayerTop >= boxBottom && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight){
+            contCollisionTop++;
+        }
+    }
+
+    for (Enemies enemy : enemiesArray){
+
+        float x;
+        float y;
+        for(int i=0;i<sizeof(enemiesArray)/sizeof(enemiesArray[0]); i++){
+            Enemy.GetPos(i, x,y);
+            enemiesArray[i].gX = x;
+            enemiesArray[i].gY = y;
+        }
+        if(!enemy.canBeDrawn) continue;
+
+        float boxLeft = enemy.gX - 2 / 2;  //metade da largura do tronco
+        float boxRight = enemy.gX +  2 / 2; //metade da largura do tronco
+        float boxTop = enemy.gY + 5.6;;
+        float boxBottom = enemy.gY - 3.6; //perna height x 2
+
+        //devido a contagem de colisões com varias caixas, apenas uma irá ter uma colisao no topo, se não houver um cont de colisões
+        //a proxima verificação de colisão dará false, pois naquela caixa especifica não há o player em cima;
+
+        if(previousPlayerBottom > boxTop && currentPlayerBottom <= boxTop && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight){
+            Player.ResetJumpDistance();
+            contCollisionBottom++;
+        }
+
+        if(previousPlayerRight < boxLeft && currentPlayerRight >= boxLeft &&  currentPlayerBottom < boxTop && currentPlayerTop > boxBottom){
+            contCollisionRight++;
+        }
+
+        if(previousPlayerLeft > boxRight && currentPlayerLeft <= boxRight && currentPlayerBottom < boxTop && currentPlayerTop > boxBottom){
+            contCollisionLeft++;
         }
 
         if(previousPlayerTop < boxBottom && currentPlayerTop >= boxBottom && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight){
@@ -701,6 +756,12 @@ void MyMouse(int button, int state, int x, int y)
 
 int main(int argc, char *argv[])
 {
+    string x;
+    cout << "Caminho do SVG:"; // Type a number and press enter
+    getline(cin, x);
+    Cenario.SetImagePath(x.c_str());
+
+
     // Initialize openGL with Double buffer and RGB color without transparency.
     // Its interesting to try GLUT_SINGLE instead of GLUT_DOUBLE.
     glutInit(&argc, argv);
