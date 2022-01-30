@@ -422,17 +422,16 @@ void CheckEnemiesCollision() {
             //a proxima verificação de colisão dará false, pois naquela caixa especifica não há o player em cima;
 
 
-            if (/*previousEnemyBottom[i] > boxTop && */currentEnemyBottom <= boxTop && currentEnemyTop > boxBottom && currentEnemyRight > boxLeft &&
-                                                       currentEnemyLeft < boxRight) {
+            if (currentEnemyBottom <= boxTop && currentEnemyTop > boxBottom && currentEnemyRight > boxLeft && currentEnemyLeft < boxRight) {
                 contCollisionBottom++;
             }
 
-            if (previousEnemyRight[i] < boxLeft && currentEnemyRight >= boxLeft && currentEnemyBottom + 0.3 < boxTop &&
+            if (previousEnemyRight[i] < boxLeft && currentEnemyRight >= boxLeft && currentEnemyBottom + 0.32 < boxTop &&
                 currentEnemyTop > boxBottom) {
                 contCollisionRight++;
             }
 
-            if (previousEnemyLeft[i] > boxRight && currentEnemyLeft <= boxRight && currentEnemyBottom + 0.3 < boxTop &&
+            if (previousEnemyLeft[i] > boxRight && currentEnemyLeft <= boxRight && currentEnemyBottom + 0.32 < boxTop &&
                 currentEnemyTop > boxBottom) {
                 contCollisionLeft++;
 
@@ -476,8 +475,7 @@ void CheckEnemiesCollision() {
         }
 
 
-        if (!enemyCollidingBottom[i] /*&& previousEnemyBottom[i] == currentEnemyBottom && !enemyReachedGround[i]*/) { //gravity?
-            //cout << "here" << endl;
+        if (!enemyCollidingBottom[i]) {
 
             if (!enemyReachedGround[i]) {
                 Enemy.FreeFall(i, yVel);
@@ -578,7 +576,6 @@ void CheckPlayerCollision() {
 
         if(previousPlayerLeft > boxRight && currentPlayerLeft <= boxRight && currentPlayerBottom < boxTop && currentPlayerTop > boxBottom){
             contCollisionLeft++;
-            cout << "colliding left" << endl;
         }
 
         if(previousPlayerTop < boxBottom && currentPlayerTop >= boxBottom && currentPlayerRight > boxLeft && currentPlayerLeft < boxRight){

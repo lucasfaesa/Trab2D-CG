@@ -328,14 +328,11 @@ bool Enemy::Atingido(int index, Tiro *tiro) {
     float enemySizeY = (enemyPernaHeight * 2) + (enemyCabecaRadius * 2) + enemyTroncoHeight;
 
     bool collisionX = enemiesObj[index].gX + enemyTroncoWidth/2 >= tiroXPos &&
-                        tiroXPos + (tiroRadius * 2) >= enemiesObj[index].gX;
-                        //base do inimigo
-    bool collisionY = (enemiesObj[index].gY - enemyPernaHeight*2) + enemySizeY >= tiroYPos &&
-                      tiroYPos + (tiroRadius * 2) >= enemiesObj[index].gY;
+                        tiroXPos + (tiroRadius * 2) >= enemiesObj[index].gX - enemyTroncoWidth/2;
+                        //topo do inimigo
+    bool collisionY = enemiesObj[index].gY + (enemyTroncoHeight + enemyCabecaRadius*2) >= tiroYPos &&
+                      tiroYPos + (tiroRadius * 2) >= enemiesObj[index].gY - (enemyPernaHeight * 2);
 
-    if(collisionX && collisionY){
-        std::cout << "Colisao" << std::endl;
-    }
     return collisionX && collisionY;
 }
 
