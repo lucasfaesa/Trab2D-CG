@@ -336,6 +336,7 @@ void ResetGame() {
     playerCollidingOnRightSide = false;
     drawPlayer = true;
     canUseGravity = true;
+    gameWon = false;
 
     float playerPosX;
     float playerPosY;
@@ -757,7 +758,7 @@ int main(int argc, char *argv[])
     cout << "Caminho do SVG:"; // Type a number and press enter
     getline(cin, x);
     Cenario.SetImagePath(x.c_str());
-
+    Enemy.SetImagePath(x.c_str());
 
     // Initialize openGL with Double buffer and RGB color without transparency.
     // Its interesting to try GLUT_SINGLE instead of GLUT_DOUBLE.

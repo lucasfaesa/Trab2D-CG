@@ -1,1 +1,0 @@
-g++ *.cpp -o test -I"C:\MinGW\freeglut\include" -lopengl32 -L"C:\MinGW\freeglut\lib" -lfreeglut

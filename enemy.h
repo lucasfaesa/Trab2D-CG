@@ -69,6 +69,11 @@ private:
 
 public:
     Enemies enemiesObj[7] = {};
+    const char *enemyImagePath = "";
+
+    void SetImagePath(const char* path){
+        enemyImagePath = path;
+    }
 
     void Desenha(int index, Enemies enemy){
         DesenhaTodos();

@@ -157,8 +157,7 @@ enemyTiro* Enemy::Atira(int index) {
 
 void Enemy::GetEnemiesFromSvg() {
     tinyxml2::XMLDocument doc;
-    doc.LoadFile(
-            "C:/Users/lucas/Desktop/Trab2D/arena_teste.svg"); //TODO modificar para input externo via linha de comando futuramente
+    doc.LoadFile(enemyImagePath);
 
     tinyxml2::XMLElement *levelElement = doc.FirstChildElement("svg");
 
@@ -202,9 +201,7 @@ void Enemy::RodaBraco(int index, GLfloat playerX, GLfloat playerY)
     double dx = playerX - enemiesObj[index].gX;
     double dy = playerY - enemiesObj[index].gY;
     double ang = atan2(dy, dx) * (180 / M_PI);
-    //bTheta =  inc - Enemy::initialBTheta;
     float armRot = ang;
-    //float armRot = testzz + 90;
 
     if(enemyFacingRight[index]){
         if(armRot > 45)
@@ -219,9 +216,6 @@ void Enemy::RodaBraco(int index, GLfloat playerX, GLfloat playerY)
             armRot = -135;
         enemiesObj[index].bTheta = armRot - 90;
     }
-
-
-    //bTheta =  ang;
 }
 
 void Enemy::RodaPernaE1(int index, GLfloat inc)
